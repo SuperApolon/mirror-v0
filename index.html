@@ -1,53 +1,253 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ミラー（仮）v0.1</title>
 <style>
-body{font-family:sans-serif;background:#111827;color:#e5e7eb;margin:0;padding:12px;max-width:720px;margin:auto}
-h1{font-size:20px;margin:4px 0}.rules{font-size:12px;color:#9ca3af;line-height:1.5}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.card{width:64px;height:88px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;border:2px solid #374151;background:#1f2937;cursor:default}
-.card.me{cursor:pointer}.card.me:hover{border-color:#fbbf24}.card .n{font-size:22px}
-.天使{background:#fde68a;color:#111}.機械{background:#93c5fd;color:#111}.人間{background:#fca5a5;color:#111}.守{background:#a7f3d0;color:#111}.q{background:#374151;color:#9ca3af}
-.bar{display:flex;justify-content:space-between;font-size:14px}#log{font-size:13px;background:#0b1220;padding:8px;border-radius:6px;min-height:60px;white-space:pre-line}
-button{padding:8px 14px;border-radius:6px;border:0;background:#fbbf24;font-weight:bold}
-</style></head><body>
+body{font-family:sans-serif;background:#111827;color:#e5e7eb;margin:0 auto;padding:12px;max-width:720px}
+h1{font-size:20px;margin:4px 0}
+.rules{font-size:12px;color:#9ca3af;line-height:1.5}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0;align-items:center}
+.card{width:72px;height:96px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;border:2px solid #374151;background:#1f2937;color:#e5e7eb;padding:0;font:inherit}
+button.card.pickable{cursor:pointer}
+button.card.pickable:hover{border-color:#fbbf24}
+button.card:disabled{opacity:.55;cursor:default}
+.card .n{font-size:22px;margin-top:2px}
+.天使{background:#fde68a;color:#111}
+.機械{background:#93c5fd;color:#111}
+.人間{background:#fca5a5;color:#111}
+.守{background:#a7f3d0;color:#111}
+.q{background:#374151;color:#9ca3af}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap}
+#status{font-size:14px;margin:8px 0;color:#fbbf24;min-height:1.2em}
+#log{font-size:13px;background:#0b1220;padding:8px;border-radius:6px;min-height:60px;white-space:pre-line}
+button.act{padding:8px 14px;border-radius:6px;border:0;background:#fbbf24;color:#111;font-weight:bold;cursor:pointer}
+</style>
+</head>
+<body>
 <h1>ミラー（仮）v0.1 #ミラー</h1>
-<div class="rules">対AI。ライフ5・最大5ラウンド・手札3。カード: 天使／機械／人間（各1〜3）＋守。<br>
-三すくみ: 機械＞天使＞人間＞機械。異種は優位側が劣勢側のダメージを無効にする（勝ち側のダメージだけ入る）。<br>
-同種は相殺: 数値の差分が小さい方へ入る（同値なら0）。守: そのラウンド受けるあらゆるダメージを0（守は与ダメなし）。<br>
+<div class="rules">対AI。ライフ5・最大5ラウンド・手札3。カード: 天使／機械／人間（各1〜2）＋守。<br>
+三すくみ: 機械＞天使＞人間＞機械。異種は優位側が劣勢側のダメージを無効（勝ち側ダメのみ）。<br>
+同種は相殺: 差分が小さい方へ（同値なら0）。守: そのラウンド受けるダメを0（与ダメなし）。<br>
 欠落: 相手手札の1枚は「？」。勝敗: ライフ0／5R後は残ライフ→残手札。</div>
-<div class="bar"><span>AI ライフ <b id="al"></b> 山 <span id="ad"></span></span><span>ラウンド <b id="rd"></b>/5</span></div>
-<div class="row" id="ah"></div>
-<div class="row" id="field" style="min-height:92px;align-items:center"></div>
-<div class="row" id="ph"></div>
-<div class="bar"><span>あなた ライフ <b id="pl"></b> 山 <span id="pd"></span></span><button id="rs">最初から</button></div>
+<div class="bar"><span>AI ライフ <b id="aiLife">5</b>　山 <span id="aiDeck">0</span></span><span>ラウンド <b id="round">1</b>/5</span></div>
+<div class="row" id="aiHand"></div>
+<div class="row" id="field" style="min-height:100px"></div>
+<div class="row" id="myHand"></div>
+<div class="bar"><span>あなた ライフ <b id="myLife">5</b>　山 <span id="myDeck">0</span></span><button type="button" class="act" id="restart">最初から</button></div>
+<div id="status"></div>
 <div id="log"></div>
 <script>
-const BEATS={機械:'天使',天使:'人間',人間:'機械'};
-function deck(){const d=[];for(const t of['天使','機械','人間'])for(const v of[1,1,2,2,3].slice(0,t==='人間'?4:4))d.push({t,v});d.push({t:'守',v:0},{t:'守',v:0});for(let i=d.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[d[i],d[j]]=[d[j],d[i]]}return d}
-let S;
-function draw(p){while(p.h.length<3&&p.d.length)p.h.push(p.d.pop())}
-function newGame(){S={r:1,over:false,p:{l:5,d:deck(),h:[]},a:{l:5,d:deck(),h:[]},last:null,log:'カードを1枚選んでください。'};draw(S.p);draw(S.a);S.miss=Math.random()*S.a.h.length|0;render()}
-function resolve(x,y){// returns [dmgToX,dmgToY]
- let dx=0,dy=0;
- if(x.t==='守'||y.t==='守'){}
- else if(x.t===y.t){const d=x.v-y.v;if(d>0)dy=d;else dx=-d}
- else if(BEATS[x.t]===y.t)dy=x.v;else dx=y.v;
- if(x.t==='守')dx=0;if(y.t==='守')dy=0;return[dx,dy]}
-function aiPick(){const h=S.a.h;let best=0,bs=-1e9;h.forEach((c,i)=>{let s=0;S.p.h.forEach(pc=>{const[da,dp]=resolve(c,pc);s+=dp-da});s+=Math.random()*.5;if(s>bs){bs=s;best=i}});return best}
-const nm=c=>c.t==='守'?'守':c.t+c.v;
-function play(i){if(S.over)return;const pc=S.p.h.splice(i,1)[0];const ai=aiPick();const ac=S.a.h.splice(ai,1)[0];
- const[dp,da]=resolve(pc,ac);S.p.l-=dp;S.a.l-=da;S.last=[pc,ac];
- S.log=`R${S.r}: あなた ${nm(pc)} vs AI ${nm(ac)} → あなた -${dp} / AI -${da}`;
- if(S.p.l<=0||S.a.l<=0||S.r>=5){S.over=true;let w;
-  if(S.p.l<=0&&S.a.l<=0)w='引き分け';else if(S.a.l<=0)w='あなたの勝ち';else if(S.p.l<=0)w='AIの勝ち';
-  else if(S.p.l!==S.a.l)w=S.p.l>S.a.l?'あなたの勝ち（残ライフ）':'AIの勝ち（残ライフ）';
-  else{const a=S.p.h.length+S.p.d.length,b=S.a.h.length+S.a.d.length;w=a===b?'引き分け':a>b?'あなたの勝ち（残手札）':'AIの勝ち（残手札）'}
-  S.log+=`\n終了: ${w}`}
- else{S.r++;draw(S.p);draw(S.a);S.miss=Math.random()*S.a.h.length|0}
- render()}
-function el(c,cls,on){const e=document.createElement('div');e.className='card '+cls;if(c){e.classList.add(c.t);e.innerHTML=`<div>${c.t}</div><div class="n">${c.t==='守'?'0':c.v}</div>`}else{e.classList.add('q');e.innerHTML='<div class="n">？</div>'}if(on)e.onclick=on;return e}
-function render(){al.textContent=S.a.l;pl.textContent=S.p.l;rd.textContent=S.r;ad.textContent=S.a.d.length;pd.textContent=S.p.d.length;
- ah.innerHTML='';S.a.h.forEach((c,i)=>ah.appendChild(el(S.over||i!==S.miss?c:null,'')));
- field.innerHTML='';if(S.last){field.appendChild(el(S.last[0],''));field.append(' vs ');field.appendChild(el(S.last[1],''))}
- ph.innerHTML='';S.p.h.forEach((c,i)=>ph.appendChild(el(c,'me',()=>play(i))));log.textContent=S.log}
-rs.onclick=newGame;newGame();
-</script></body></html>
+(function () {
+  const BEATS = { 機械: '天使', 天使: '人間', 人間: '機械' };
+  const $ = (id) => document.getElementById(id);
+  let S = null;
+  let busy = false;
+
+  function deck() {
+    const d = [];
+    for (const t of ['天使', '機械', '人間']) {
+      for (const v of [1, 1, 2, 2]) d.push({ t, v });
+    }
+    d.push({ t: '守', v: 0 }, { t: '守', v: 0 });
+    for (let i = d.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      [d[i], d[j]] = [d[j], d[i]];
+    }
+    return d;
+  }
+
+  function refill(p) {
+    while (p.hand.length < 3 && p.deck.length) p.hand.push(p.deck.pop());
+  }
+
+  function label(c) {
+    return c.t === '守' ? '守' : c.t + c.v;
+  }
+
+  // returns [dmgToPlayerCardOwner=x, dmgToY]
+  function resolve(x, y) {
+    let dx = 0, dy = 0;
+    if (x.t !== '守' && y.t !== '守') {
+      if (x.t === y.t) {
+        const d = x.v - y.v;
+        if (d > 0) dy = d;
+        else if (d < 0) dx = -d;
+      } else if (BEATS[x.t] === y.t) {
+        dy = x.v;
+      } else {
+        dx = y.v;
+      }
+    }
+    if (x.t === '守') dx = 0;
+    if (y.t === '守') dy = 0;
+    return [dx, dy];
+  }
+
+  function aiPick() {
+    const h = S.ai.hand;
+    let best = 0, bestScore = -1e9;
+    for (let i = 0; i < h.length; i++) {
+      let score = 0;
+      for (const pc of S.me.hand) {
+        const [toAi, toMe] = resolve(h[i], pc);
+        score += toMe - toAi;
+      }
+      score += Math.random() * 0.5;
+      if (score > bestScore) { bestScore = score; best = i; }
+    }
+    return best;
+  }
+
+  function endReason() {
+    if (S.me.life <= 0 && S.ai.life <= 0) return '引き分け';
+    if (S.ai.life <= 0) return 'あなたの勝ち';
+    if (S.me.life <= 0) return 'AIの勝ち';
+    if (S.me.life !== S.ai.life) {
+      return S.me.life > S.ai.life ? 'あなたの勝ち（残ライフ）' : 'AIの勝ち（残ライフ）';
+    }
+    const a = S.me.hand.length + S.me.deck.length;
+    const b = S.ai.hand.length + S.ai.deck.length;
+    if (a === b) return '引き分け';
+    return a > b ? 'あなたの勝ち（残手札）' : 'AIの勝ち（残手札）';
+  }
+
+  function finish(extra) {
+    S.over = true;
+    S.status = '対局終了 — 「最初から」でもう一回';
+    S.log += (extra || '') + '\n終了: ' + endReason();
+    if (S.missed) S.log += '\n欠落していたAIの札: ' + label(S.missed);
+  }
+
+  function advanceRound() {
+    S.round += 1;
+    refill(S.me);
+    refill(S.ai);
+    S.missIndex = S.ai.hand.length ? (Math.random() * S.ai.hand.length) | 0 : -1;
+    S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
+    S.status = 'ラウンド ' + S.round + ' — 手札から1枚選んでください';
+  }
+
+  function newGame() {
+    busy = false;
+    S = {
+      round: 1,
+      over: false,
+      me: { life: 5, deck: deck(), hand: [] },
+      ai: { life: 5, deck: deck(), hand: [] },
+      last: null,
+      missIndex: -1,
+      missed: null,
+      log: '',
+      status: 'ラウンド 1 — 手札から1枚選んでください',
+    };
+    refill(S.me);
+    refill(S.ai);
+    S.missIndex = S.ai.hand.length ? (Math.random() * S.ai.hand.length) | 0 : -1;
+    S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
+    render();
+  }
+
+  function play(index) {
+    if (!S || S.over || busy) return;
+    if (index < 0 || index >= S.me.hand.length) return;
+    busy = true;
+    try {
+      const pc = S.me.hand.splice(index, 1)[0];
+      if (!pc || !S.ai.hand.length) {
+        S.log += '\nエラー: 手札が足りません';
+        finish();
+        render();
+        return;
+      }
+      const aiIndex = aiPick();
+      const ac = S.ai.hand.splice(aiIndex, 1)[0];
+      if (S.missIndex === aiIndex) S.missed = ac;
+      else if (S.missIndex > aiIndex) S.missIndex -= 1;
+
+      const [dmgMe, dmgAi] = resolve(pc, ac);
+      S.me.life -= dmgMe;
+      S.ai.life -= dmgAi;
+      S.last = [pc, ac];
+      S.log = (S.log ? S.log + '\n' : '') +
+        'R' + S.round + ': あなた ' + label(pc) + ' vs AI ' + label(ac) +
+        ' → あなた -' + dmgMe + ' / AI -' + dmgAi;
+
+      const lifeOver = S.me.life <= 0 || S.ai.life <= 0;
+      const lastRound = S.round >= 5;
+      if (lifeOver || lastRound) {
+        finish();
+      } else {
+        advanceRound();
+      }
+      render();
+    } finally {
+      busy = false;
+    }
+  }
+
+  function makeCard(c, { hidden, pickable, onPick } = {}) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'card';
+    if (hidden || !c) {
+      b.classList.add('q');
+      b.innerHTML = '<div class="n">？</div>';
+      b.disabled = true;
+      return b;
+    }
+    b.classList.add(c.t);
+    b.innerHTML = '<div>' + c.t + '</div><div class="n">' + (c.t === '守' ? '—' : c.v) + '</div>';
+    if (pickable && onPick) {
+      b.classList.add('pickable');
+      b.addEventListener('click', onPick);
+    } else {
+      b.disabled = true;
+    }
+    return b;
+  }
+
+  function render() {
+    $('aiLife').textContent = S.ai.life;
+    $('myLife').textContent = S.me.life;
+    $('round').textContent = S.round;
+    $('aiDeck').textContent = S.ai.deck.length;
+    $('myDeck').textContent = S.me.deck.length;
+    $('status').textContent = S.status;
+    $('log').textContent = S.log;
+
+    const aiHand = $('aiHand');
+    aiHand.innerHTML = '';
+    S.ai.hand.forEach((c, i) => {
+      const hide = !S.over && i === S.missIndex;
+      aiHand.appendChild(makeCard(hide ? null : c, { hidden: hide }));
+    });
+
+    const field = $('field');
+    field.innerHTML = '';
+    if (S.last) {
+      field.appendChild(makeCard(S.last[0], {}));
+      const vs = document.createElement('span');
+      vs.textContent = ' vs ';
+      field.appendChild(vs);
+      field.appendChild(makeCard(S.last[1], {}));
+    }
+
+    const myHand = $('myHand');
+    myHand.innerHTML = '';
+    const canPick = !S.over;
+    S.me.hand.forEach((c, i) => {
+      myHand.appendChild(makeCard(c, {
+        pickable: canPick,
+        onPick: () => play(i),
+      }));
+    });
+  }
+
+  $('restart').addEventListener('click', newGame);
+  newGame();
+})();
+</script>
+</body>
+</html>
