@@ -129,6 +129,7 @@ button.card.pickable{cursor:pointer}
   const $ = (id) => document.getElementById(id);
   let S = null;
   let busy = false;
+  const AUTO_NEXT_MS = 1000; // 結果表示→自動で次ラウンド
   let sel = -1;
 
   function deck() {
@@ -267,14 +268,19 @@ button.card.pickable{cursor:pointer}
 
       const lifeOver = S.me.life <= 0 || S.ai.life <= 0;
       const lastRound = S.round >= 5;
-      if (lifeOver || lastRound) {
-        finish();
-      } else {
-        advanceRound();
-      }
-      render();
-    } finally {
+      S.status = 'ラウンド ' + S.round + ' 結果: ' + resText(S.res) + (lifeOver || lastRound ? '' : ' — 次ラウンドへ…');
+      render(); // busy=true のまま結果を表示
+      // 結果表示のあと自動で次ラウンドへ（手動待ちなし）
+      setTimeout(() => {
+        if (lifeOver || lastRound) finish();
+        else advanceRound();
+        sel = -1;
+        busy = false;
+        render();
+      }, AUTO_NEXT_MS);
+    } catch (e) {
       busy = false;
+      throw e;
     }
   }
 
@@ -377,12 +383,11 @@ button.card.pickable{cursor:pointer}
         selected: i === sel,
         onPick: () => {
           if (busy || S.over) return;
-          if (sel === i) { sel = -1; play(i); }
-          else { sel = i; render(); }
+          sel = -1; play(i); // 1タップで即出す
         },
       }));
     });
-    $('hint').textContent = S.over ? '' : sel >= 0 ? 'もう一度タップで出す' : 'タップで選択';
+    $('hint').textContent = S.over ? '' : busy ? '結果表示中…' : 'タップで出す';
 
     const ov = $('over');
     if (S.over) {
