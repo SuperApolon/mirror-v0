@@ -1,0 +1,55 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ミラー（仮）</title>
+<style>
+body{margin:0;background:#0d0f1a;color:#e8f6ff;font-family:system-ui,sans-serif;display:flex;justify-content:center}
+main{max-width:640px;width:100%;padding:16px}
+h1{margin:4px 0;background:linear-gradient(90deg,#3ff0ff,#ff5fc8);-webkit-background-clip:text;color:transparent}
+.rule{font-size:13px;background:#161a2c;border:1px solid #2b3150;border-radius:10px;padding:8px 12px;line-height:1.6}
+.side{background:#141828;border-radius:12px;padding:10px;margin:10px 0;border:1px solid #2b3150}
+.opp{border-color:#ff5fc855}.me{border-color:#3ff0ff55}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.card{width:72px;height:92px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:#1f2540;border:2px solid #3ff0ff;user-select:none}
+.opp .card{border-color:#ff5fc8;opacity:.75;filter:blur(.3px)}
+.card.q{color:#ff5fc8;font-size:30px}.card.rev{outline:2px dashed #fff}
+.me .card{cursor:pointer}.me .card:hover{transform:translateY(-4px);background:#26305a}
+.life{font-size:20px}.log{font-size:13px;min-height:60px;white-space:pre-line;color:#b8c8e0}
+button{background:linear-gradient(90deg,#3ff0ff,#ff5fc8);border:0;border-radius:20px;padding:8px 20px;font-weight:700;cursor:pointer}
+#result{font-size:22px;font-weight:800;text-align:center;margin:8px}.tag{color:#3ff0ff;text-align:right;font-size:13px}
+.field{width:72px;height:92px;border:2px dashed #555;border-radius:10px;display:flex;align-items:center;justify-content:center}
+</style></head><body><main>
+<h1>ミラー（仮）</h1>
+<div class="rule">ライフ3・5ラウンド。毎ラウンド手札3枚に補充→1枚出す→AIも1枚。<br>
+<b>斬N</b>=相手ライフ-N／<b>守</b>=このラウンド受ける斬-1／<b>透</b>=相手の「？」を開示。<br>
+相手の手札は1枚が<b>？</b>（欠けて見える）。ライフ0で決着。5R後は残ライフ→残手札で判定。</div>
+<div class="side opp"><div class="row"><b>AI</b><span class="life" id="al"></span><span style="margin-left:auto">場</span><div class="field" id="af"></div></div><div class="row" id="ah" style="margin-top:8px"></div></div>
+<div class="side me"><div class="row"><b>あなた</b><span class="life" id="pl"></span><span style="margin-left:auto">場</span><div class="field" id="pf"></div></div><div class="row" id="ph" style="margin-top:8px"></div></div>
+<div id="round"></div><div id="result"></div><div class="log" id="log"></div>
+<div style="text-align:center"><button id="again" onclick="start()" style="display:none">もう一回</button></div>
+<div class="tag">#ミラー</div>
+<script>
+const BASE=['斬1','斬1','斬1','斬2','斬2','斬2','斬3','斬3','守','守','透','透'];
+let S; // single source of truth
+const sh=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const dmg=c=>c.startsWith('斬')?+c[1]:0;
+function start(){S={r:0,over:false,p:{life:3,deck:sh(BASE),hand:[]},a:{life:3,deck:sh(BASE),hand:[]},log:[],hidden:-1,reveal:false,pf:'',af:'',seen:[]};document.getElementById('again').style.display='none';document.getElementById('result').textContent='';nextRound()}
+function fill(x){while(x.hand.length<3&&x.deck.length)x.hand.push(x.deck.pop())}
+function nextRound(){S.r++;fill(S.p);fill(S.a);S.hidden=Math.random()*S.a.hand.length|0;S.reveal=false;S.seen.push(S.a.hand[S.hidden]);render()}
+// player view filter: opponent hand with one slot missing
+function view(){return S.a.hand.map((c,i)=>i===S.hidden&&!S.reveal?'？':c)}
+function aiPick(){const h=S.a.hand;let i=h.findIndex(c=>dmg(c)>=S.p.life);if(i<0&&S.a.life<=2)i=h.indexOf('守');if(i<0){let b=-1;h.forEach((c,k)=>{if(dmg(c)>(b<0?0:dmg(h[b])))b=k});i=b}if(i<0)i=h.findIndex(c=>c!=='透');if(i<0)i=0;return i}
+function play(i){if(S.over)return;const pc=S.p.hand.splice(i,1)[0];const ac=S.a.hand.splice(aiPick(),1)[0];S.pf=pc;S.af=ac;
+let L=`R${S.r}: あなた【${pc}】／AI【${ac}】`;
+if(pc==='透'){S.reveal=true;L+=` → 透視: 欠けていたのは「${S.seen[S.seen.length-1]}」`}
+let d1=Math.max(0,dmg(pc)-(ac==='守'?1:0)),d2=Math.max(0,dmg(ac)-(pc==='守'?1:0));
+S.a.life-=d1;if(d1)L+=` → AIに${d1}`;
+if(S.a.life>0){S.p.life-=d2;if(d2)L+=` → あなたに${d2}`}
+S.log.unshift(L);
+if(S.a.life<=0)return end('勝利！');if(S.p.life<=0)return end('敗北…');
+if(S.r>=5){const p=[S.p.life,S.p.hand.length],a=[S.a.life,S.a.hand.length];return end(p[0]!==a[0]?(p[0]>a[0]?'判定勝ち！':'判定負け…'):p[1]!==a[1]?(p[1]>a[1]?'判定勝ち！(手札)':'判定負け…(手札)'):'引き分け')}
+nextRound()}
+function end(t){S.over=true;S.reveal=true;render();document.getElementById('result').textContent=t;S.log.unshift('相手に欠けて見えていたもの: '+S.seen.join('・'));render();document.getElementById('again').style.display='inline-block'}
+function render(){const $=id=>document.getElementById(id);$('pl').textContent='♥'.repeat(Math.max(0,S.p.life))+'♡'.repeat(3-Math.max(0,S.p.life));$('al').textContent='♥'.repeat(Math.max(0,S.a.life))+'♡'.repeat(3-Math.max(0,S.a.life));
+$('ah').innerHTML=view().map((c,i)=>`<div class="card ${c==='？'?'q':''} ${S.reveal&&i===S.hidden?'rev':''}">${c}</div>`).join('');
+$('ph').innerHTML=S.p.hand.map((c,i)=>`<div class="card" onclick="play(${i})">${c}</div>`).join('');
+$('pf').textContent=S.pf;$('af').textContent=S.af;$('round').textContent=`ラウンド ${Math.min(S.r,5)} / 5`+(S.over?'':'　— カードをタップ');$('log').textContent=S.log.join('\n')}
+start();
+</script></main></body></html>
