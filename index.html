@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pain Reflection</title>
+<title>Pain Reflection</title><link rel="icon" href="assets/logo/pain-reflection-favicon.ico"><link rel="icon" type="image/png" sizes="32x32" href="assets/logo/pain-reflection-favicon-32.png"><link rel="apple-touch-icon" href="assets/logo/pain-reflection-favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
@@ -123,7 +123,7 @@ button.card.pickable{cursor:pointer}
 .card .art .num{position:absolute;right:4px;bottom:2px;font-size:calc(var(--hw)*.22)!important;color:#fff}
 .abtn{display:flex;flex-direction:column;align-items:center;padding:4px 8px}.abtn .aimg{width:110px;height:auto;border-radius:6px;margin-bottom:2px}
 .klogo{width:min(360px,80vw);mix-blend-mode:screen;margin-top:8px}
-.build{background:linear-gradient(rgba(13,15,26,.82),rgba(13,15,26,.92)),url(assets/key/bg.jpg) center/cover fixed}
+.build{background:linear-gradient(rgba(13,15,26,.82),rgba(13,15,26,.92)),url(assets/key/pr-title-bg.jpg) center/cover fixed}
 .ai .card.q .qm{filter:blur(1.2px)}
 .card.t-鎖{box-shadow:0 0 16px #a0a8b8,0 0 4px #3ff0ff}
 .card.t-不死::after{content:'';position:absolute;inset:-1px;border:2px solid #7dff9a66;transform:translate(4px,-3px);pointer-events:none;border-radius:inherit}
@@ -167,9 +167,7 @@ button.card.pickable{cursor:pointer}
 </div>
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
-<div class="build" id="build"><img class="klogo" src="assets/key/logo-kekkyo.jpg" alt="欠鏡"><div style="font-size:22px;font-weight:900;color:#e8f6ff;letter-spacing:.12em">Pain Reflection</div><div class="lore1">痛みは消えない。返す側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。相手の手が刺さるたび、こちらの傷が熱を持つ。痛みは嘘をつかない。ただ、跳ね返すまで消えない。勝つのは強い手ではない。受けた傷を、正確に返した側だ。一瞬のズレが、すべてを決める。
-
-痛みは消えない。返す側が勝つ。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
+<div class="build" id="build"><img class="klogo" src="assets/logo/pain-reflection-wide-sub-1280x320.png" alt="Pain Reflection"><div style="font-size:22px;font-weight:900;color:#e8f6ff;letter-spacing:.12em">Pain Reflection</div><div class="lore1">痛みは消えない。返す側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。相手の手が刺さるたび、こちらの傷が熱を持つ。痛みは嘘をつかない。ただ、跳ね返すまで消えない。勝つのは強い手ではない。受けた傷を、正確に返した側だ。一瞬のズレが、すべてを決める。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
 <div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/7</div><div class="bpool" id="bPool"></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
