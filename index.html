@@ -217,17 +217,17 @@ button.card.pickable{cursor:pointer}
   // ===== カード定義（ここに1行足せばバインダー・構築・AIプールが追従）=====
   // id: 内部ID / name: 表示名 / key: 特殊効果キー(解決ロジック側の c.t) / limit: 構築上限枚数 / art: 原画パス / flavor: 短文
   const CARD_DEFS = [
-    { id: 'guard',    name: '守',   key: '守',   limit: 2, art: 'assets/sp/sp-guard.jpg',    flavor: '痛みを受け止める盾。' },
-    { id: 'exchange', name: '交換', key: '交換', limit: 1, art: 'assets/sp/sp-exchange.jpg', flavor: '傷を取り替える。' },
-    { id: 'reflect',  name: '反射', key: '反射', limit: 2, art: 'assets/sp/sp-reflect.jpg',  flavor: '受けた痛みを返す。' },
-    { id: 'dmg3',     name: '3ダメ', key: '3ダメ', limit: 1, art: 'assets/sp/sp-dmg3.jpg',   flavor: '深く刺す一撃。' },
-    { id: 'immortal', name: '不死', key: '不死', limit: 1, art: 'assets/sp/sp-immortal.jpg', flavor: '倒れない夜。' },
-    { id: 'selfharm', name: '自傷', key: '自傷', limit: 2, art: 'assets/sp/sp-selfharm.jpg', flavor: '己を削って刃とする。' },
-    { id: 'reverse',  name: '反転', key: '反転', limit: 2, art: 'assets/sp/sp-reverse.jpg',  flavor: '痛みと癒やしを裏返す。' },
-    { id: 'cosink',   name: '共沈', key: '共沈', limit: 1, art: 'assets/sp/sp-cosink.jpg',   flavor: '共に沈む。' },
-    { id: 'nullify',  name: '零化', key: '零化', limit: 1, art: 'assets/sp/sp-nullify.jpg',  flavor: 'すべてを零に。' },
-    { id: 'gift',     name: '贈与', key: '贈与', limit: 2, art: 'assets/sp/sp-gift.jpg',     flavor: '痛みを贈る。' },
-    { id: 'chain',    name: '鎖',   key: '鎖',   limit: 1, art: 'assets/sp/sp-chain.jpg',    flavor: '手を封じる。' },
+    { id: 'guard',    name: '守',   key: '守',   limit: 2, art: 'assets/sp/sp-guard.jpg',    flavor: '欠ける前に、こちら側だけを閉じる。' },
+    { id: 'exchange', name: '交換', key: '交換', limit: 1, art: 'assets/sp/sp-exchange.jpg', flavor: 'あなたの真実と、私の影を入れ替える。' },
+    { id: 'reflect',  name: '反射', key: '反射', limit: 2, art: 'assets/sp/sp-reflect.jpg',  flavor: '投げた刃が、投げた側の輪郭へ戻る。' },
+    { id: 'dmg3',     name: '3ダメ', key: '3ダメ', limit: 1, art: 'assets/sp/sp-dmg3.jpg',   flavor: '数字が、三発で対称を殴り割る。' },
+    { id: 'immortal', name: '不死', key: '不死', limit: 1, art: 'assets/sp/sp-immortal.jpg', flavor: '消えない側に、残像だけが残る。' },
+    { id: 'selfharm', name: '自傷', key: '自傷', limit: 2, art: 'assets/sp/sp-selfharm.jpg', flavor: '自分を削って、穴を深くする。' },
+    { id: 'reverse',  name: '反転', key: '反転', limit: 2, art: 'assets/sp/sp-reverse.jpg',  flavor: '表と裏が、同時に真実になる。' },
+    { id: 'cosink',   name: '共沈', key: '共沈', limit: 1, art: 'assets/sp/sp-cosink.jpg',   flavor: '二人で沈むなら、それは勝ちに近い。' },
+    { id: 'nullify',  name: '零化', key: '零化', limit: 1, art: 'assets/sp/sp-nullify.jpg',  flavor: 'すべてを、欠けの形に戻す。' },
+    { id: 'gift',     name: '贈与', key: '贈与', limit: 2, art: 'assets/sp/sp-gift.jpg',     flavor: '渡しすぎた光が、相手の余白を埋める。' },
+    { id: 'chain',    name: '鎖',   key: '鎖',   limit: 1, art: 'assets/sp/sp-chain.jpg',    flavor: 'つながったまま、動けなくなる美しさ。' },
   ];
   const CARD_BY_KEY = Object.fromEntries(CARD_DEFS.map(d => [d.key, d]));
   const SPECIALS = CARD_DEFS.map(d => d.key);
