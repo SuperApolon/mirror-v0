@@ -251,8 +251,8 @@ button.card.pickable{cursor:pointer}
       const myPairs = [...ATTRS.map(x => [x, null]), ...S.me.hand.map(c => [null, c])];
       for (const [ma, msp] of myPairs) {
         const o = sim(st, { attr: ma, sp: msp }, { attr, sp });
-        const dA = o.ai.life <= 0 && !(o.ai.undyingUntil >= S.round + 1);
-        const dM = o.me.life <= 0 && !(o.me.undyingUntil >= S.round + 1);
+        const dA = o.ai.life <= 0 && !(o.ai.undyingUntil >= S.round);
+        const dM = o.me.life <= 0 && !(o.me.undyingUntil >= S.round);
         score += (o.ai.life - o.me.life) + (dM ? 20 : 0) - (dA ? 20 : 0);
       }
       score = score / myPairs.length + (sp ? -0.2 : 0) + Math.random() * 0.4;
@@ -264,9 +264,11 @@ button.card.pickable{cursor:pointer}
   const undyingCovers = (p, r) => p.undyingUntil >= r;
   function dead(p, nextR) { return p.life <= 0 && !undyingCovers(p, nextR); }
   function endReason() {
-    if (S.me.life <= 0 && S.ai.life <= 0) return '引き分け';
-    if (S.ai.life <= 0) return 'あなたの勝ち';
-    if (S.me.life <= 0) return 'AIの勝ち';
+    // 不死保護中（このRまで有効）の0以下は敗北扱いしない
+    const dm = dead(S.me, S.round), da = dead(S.ai, S.round);
+    if (dm && da) return '引き分け';
+    if (da) return 'あなたの勝ち';
+    if (dm) return 'AIの勝ち';
     if (S.me.life !== S.ai.life) return S.me.life > S.ai.life ? 'あなたの勝ち（残ライフ）' : 'AIの勝ち（残ライフ）';
     const a = S.me.pool.length, b = S.ai.pool.length;
     if (a === b) return '引き分け';
@@ -331,7 +333,7 @@ button.card.pickable{cursor:pointer}
       const sealedNote = (msp && !o.ms ? '（あなたの特殊は封印）' : '') + (ap.sp && !o.as ? '（AIの特殊は封印）' : '');
       S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなた ' + pairText(mp) + ' vs AI ' + pairText(ap) + sealedNote +
         ' → ' + (o.swapped ? 'ライフ交換 → ' : '') + 'あなた ' + sg(-o.dmgMe) + ' / AI ' + sg(-o.dmgAi) + '（ライフ ' + S.me.life + ' / ' + S.ai.life + '）';
-      const lifeOver = dead(S.me, S.round + 1) || dead(S.ai, S.round + 1);
+      const lifeOver = dead(S.me, S.round) || dead(S.ai, S.round);
       const lastRound = S.round >= 5;
       S.status = 'ラウンド ' + S.round + ' 結果: ' + resText(S.res) + (lifeOver || lastRound ? '' : ' — 次ラウンドへ…');
       sel = -1;
