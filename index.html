@@ -167,11 +167,13 @@ button.card.pickable{cursor:pointer}
 </div>
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
-<div class="build" id="build"><img class="klogo" src="assets/key/logo-kekkyo.jpg" alt="欠鏡"><div style="font-size:22px;font-weight:900;color:#e8f6ff;letter-spacing:.12em">Pain Reflection</div><div class="lore1">鏡は半分しか映さない。穴を読んだ側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。なのに相手の盤だけが、静かに欠けている。欠けた輪郭が、見えない手の体温を漏らす。鏡は嘘をつかない。ただ、半分しか映さない。対称は、最初から破れていた。勝つのは強い手ではない。穴を読んだ側だ。一瞬のズレが、すべてを決める。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
+<div class="build" id="build"><img class="klogo" src="assets/key/logo-kekkyo.jpg" alt="欠鏡"><div style="font-size:22px;font-weight:900;color:#e8f6ff;letter-spacing:.12em">Pain Reflection</div><div class="lore1">痛みは消えない。返す側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。相手の手が刺さるたび、こちらの傷が熱を持つ。痛みは嘘をつかない。ただ、跳ね返すまで消えない。勝つのは強い手ではない。受けた傷を、正確に返した側だ。一瞬のズレが、すべてを決める。
+
+痛みは消えない。返す側が勝つ。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
 <div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/7</div><div class="bpool" id="bPool"></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
-<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br><span class="fl">鏡は半分しか映さない。穴を読んだ側が勝つ。</span>対AI。ライフ5・最大5ラウンド。<br>「全カード交換」: 手札の特殊を全部山札に戻し（消失しない）3枚引き直す。あなた・AIとも試合中1回、手札選択前のみ。特殊カード「交換」とは別。<br>
+<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br><span class="fl">痛みは消えない。返す側が勝つ。</span>対AI。ライフ5・最大5ラウンド。<br>「全カード交換」: 手札の特殊を全部山札に戻し（消失しない）3枚引き直す。あなた・AIとも試合中1回、手札選択前のみ。特殊カード「交換」とは別。<br>
 毎R: <b>押したら即確定</b>。属性ボタン（天使／人間／機械）＝その属性で確定（特殊なし）。特殊をタップ＝その特殊を場に出して確定（属性なし。相手が属性を出していれば属性ダメ1が直撃し、自傷・3ダメ等と合算）。場は1枚。属性は通常コマンドで毎R使え、消失しない。<br>
 特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで）。開始時にプールからランダム3枚を手札に引く。手札は持ち越し、場で消失した特殊1枚ぶんだけ残り山札から1枚補充（引いた札は山札から除去・二重に出ない）。使った特殊は消失（封印で無効でも消費）。<br>
 三すくみ: 機械＞天使＞人間＞機械。勝った側が相手に1ダメ。同種はあいこ。<br>
