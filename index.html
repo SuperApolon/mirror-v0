@@ -54,6 +54,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--
 .t-反射{--c1:#ffd27a;--c2:#c47a1a}
 .t-3ダメ{--c1:#ff4a4a;--c2:#8a1a1a}
 .t-自傷{--c1:#b06cff;--c2:#4a1a6e}
+.t-反転{--c1:#9affff;--c2:#1a5a5a}
 .t-不死{--c1:#7dff9a;--c2:#1a7a3a}
 .card.q{--c1:#b8c4d6;--c2:#59607a;align-items:center;justify-content:center;background:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(255,95,200,.08) 0 2px,transparent 2px 7px),linear-gradient(160deg,#3a3f55,#171b2c 60%,#2d3247)}
 .card.q::before{content:'';position:absolute;inset:0;background:linear-gradient(0deg,transparent 30%,rgba(255,60,90,.35) 31%,transparent 32%,transparent 70%,rgba(255,60,90,.35) 71%,transparent 72%);animation:nz 1.6s steps(4) infinite}
@@ -135,13 +136,13 @@ button.card.pickable{cursor:pointer}
 </div>
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
-<div class="build" id="build"><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（属性札は重複可・守／交換／反射／3ダメ／不死／自傷は各1枚まで・ちょうど10枚）</div>
+<div class="build" id="build"><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（属性札は重複可・守／交換／反射／3ダメ／不死／自傷／反転は各1枚まで・ちょうど10枚）</div>
 <div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/10</div><div class="bpool" id="bPool"></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム10）</button></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
-<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。試合前にプール10枚を構築し、毎R残プールからランダム3枚が手札。出した札はプールから消失。カード: 天使／機械／人間／守／交換／反射／3ダメ／不死（数値なし・守／交換／反射／3ダメ／不死／自傷はデッキに各1枚まで）。<br>
+<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。試合前にプール10枚を構築し、毎R残プールからランダム3枚が手札。出した札はプールから消失。カード: 天使／機械／人間／守／交換／反射／3ダメ／不死（数値なし・守／交換／反射／3ダメ／不死／自傷／反転はデッキに各1枚まで）。<br>
 三すくみ: 機械＞天使＞人間＞機械。優位側が相手に1ダメージ。<br>
-同種はあいこ（双方0）。守: そのラウンド受けるダメを0（与ダメなし）。<br>交換: ダメージ解決の前に互いのライフを入れ替え（与ダメ・受ダメなし）。<br>反射: 天使／機械／人間からの攻撃を跳ね返し、攻撃側が1ダメ（反射同士・守・交換相手は0）。<br>3ダメ: 属性なし。相手に3ダメ（三すくみなし・反射されない・守でブロックされる）。交換と同時なら入れ替え後に3ダメ。<br>不死: 出したラウンドとその次のラウンド（計2ターン）、自分ライフが0以下でも試合継続（不死自体は与ダメなし・受ダメは通常どおり）。この間に交換でライフを入れ替え可。2ターン目終了時点でライフ0以下なら敗北。自傷: 属性なし。出した本人に3ダメ（守・反射は無関係で常に通る。交換と同時なら入れ替え後の自分に3ダメ。不死中も通常どおり）。相手への与ダメなし。<br>不死中のライフはマイナス表示（例: -2）されることがある。<br>
+同種はあいこ（双方0）。守: そのラウンド受けるダメを0（与ダメなし）。<br>交換: ダメージ解決の前に互いのライフを入れ替え（与ダメ・受ダメなし）。<br>反射: 天使／機械／人間からの攻撃を跳ね返し、攻撃側が1ダメ（反射同士・守・交換相手は0）。<br>3ダメ: 属性なし。相手に3ダメ（三すくみなし・反射されない・守でブロックされる）。交換と同時なら入れ替え後に3ダメ。<br>不死: 出したラウンドとその次のラウンド（計2ターン）、自分ライフが0以下でも試合継続（不死自体は与ダメなし・受ダメは通常どおり）。この間に交換でライフを入れ替え可。2ターン目終了時点でライフ0以下なら敗北。自傷: 属性なし。出した本人に3ダメ（守・反射は無関係で常に通る。交換と同時なら入れ替え後の自分に3ダメ。不死中も通常どおり）。相手への与ダメなし。<br>反転: 属性なし。自分のライフの符号を反転（0は0）。不死保護中でなく反転後がマイナスなら即死（敗北）。保護中ならマイナスでも継続。<br>解決順: 不死の保護開始 → 交換 → 反転 → ダメージ（三すくみ・反射・3ダメ・自傷）→ 勝敗判定。<br>不死中のライフはマイナス表示（例: -2）されることがある。<br>
 欠落: 相手手札の1枚は「？」、残りは公開。勝敗: ライフ0／5R後は残ライフ→残手札。<br>
 操作: 自分の手札をタップで出す。結果のあと自動で次ラウンドへ。</div></div>
 <script>
@@ -155,8 +156,8 @@ button.card.pickable{cursor:pointer}
 
   const POOL_N = 10;
   const CANDS = [];
-  for (const t of ['天使', '機械', '人間', '守', '交換', '反射', '3ダメ', '不死', '自傷']) CANDS.push({ t });
-  const LIMIT1 = { 守: 1, 交換: 1, 反射: 1, '3ダメ': 1, 不死: 1, 自傷: 1 };
+  for (const t of ['天使', '機械', '人間', '守', '交換', '反射', '3ダメ', '不死', '自傷', '反転']) CANDS.push({ t });
+  const LIMIT1 = { 守: 1, 交換: 1, 反射: 1, '3ダメ': 1, 不死: 1, 自傷: 1, 反転: 1 };
   const canAdd = (pool, t) => !LIMIT1[t] || pool.filter(c => c.t === t).length < LIMIT1[t];
   function randomPool() {
     const p = [];
@@ -210,6 +211,7 @@ button.card.pickable{cursor:pointer}
         const [toAi, toMe] = resolve(h[i], pc);
         score += toMe - toAi;
         if (h[i].t === '自傷' && S.ai.undyingUntil >= S.round && S.ai.undyingUntil > 0) score += 1; // 不死中ならやや許容
+        if (h[i].t === '反転') score += (S.ai.life < 0 ? 4 : S.ai.life === 0 ? 0 : (S.ai.undyingUntil >= S.round + 1 ? -1 : -10));
         if (h[i].t === '不死') score += S.ai.life <= 2 ? 1.5 : -0.5;
         if (h[i].t === '交換' || pc.t === '交換') score += (S.me.life - S.ai.life) / 3;
       }
@@ -295,6 +297,10 @@ button.card.pickable{cursor:pointer}
       if (ac.t === '不死') S.ai.undyingUntil = S.round + 1;
       const swapped = pc.t === '交換' || ac.t === '交換';
       if (swapped) { const t = S.me.life; S.me.life = S.ai.life; S.ai.life = t; }
+      // 解決順: 不死保護開始 → 交換 → 反転 → ダメージ(resolve) → 勝敗判定
+      // 反転: 自分のライフ符号反転。保護外でマイナスになれば即死（以後のダメで回復は無いので終了判定で確定）
+      if (pc.t === '反転') S.me.life = -S.me.life || 0;
+      if (ac.t === '反転') S.ai.life = -S.ai.life || 0;
       const [dmgMe, dmgAi] = resolve(pc, ac);
       S.me.life -= dmgMe;
       S.ai.life -= dmgAi;
@@ -303,7 +309,7 @@ button.card.pickable{cursor:pointer}
       S.hist.push({ r: S.round, pc, ac, dmgMe, dmgAi });
       S.log = (S.log ? S.log + '\n' : '') +
         'R' + S.round + ': あなた ' + label(pc) + ' vs AI ' + label(ac) +
-        ' → ' + (swapped ? 'ライフ交換 → ' : '') + 'あなた -' + dmgMe + ' / AI -' + dmgAi;
+        ' → ' + (swapped ? 'ライフ交換 → ' : '') + (pc.t === '反転' || ac.t === '反転' ? '反転 → ' : '') + 'あなた -' + dmgMe + ' / AI -' + dmgAi;
 
       const lifeOver = dead(S.me, S.round + 1) || dead(S.ai, S.round + 1);
       const lastRound = S.round >= 5;
@@ -331,10 +337,11 @@ button.card.pickable{cursor:pointer}
     人間: '<svg viewBox="0 0 100 100"><g fill="none" stroke="#ff5fc8" stroke-width="2.5">' + [10,20,30,40].map((r,i)=>'<circle cx="50" cy="50" r="'+r+'" opacity="'+(1-i*0.2)+'"/>').join('') + '</g></svg>',
     '3ダメ': '<svg viewBox="0 0 100 100"><polygon points="55,8 25,55 48,55 40,92 75,40 52,40" fill="#8a1a1a" stroke="#ff4a4a" stroke-width="2.5"/></svg>',
     自傷: '<svg viewBox="0 0 100 100"><path d="M30 20L70 80M70 20L30 80" stroke="#b06cff" stroke-width="5" stroke-linecap="round"/><circle cx="50" cy="50" r="36" fill="none" stroke="#4a1a6e" stroke-width="3"/></svg>',
+    反転: '<svg viewBox="0 0 100 100"><g fill="none" stroke="#9affff" stroke-width="5" stroke-linecap="round"><path d="M50 15V85M35 30L50 15L65 30M35 70L50 85L65 70"/></g></svg>',
     不死: '<svg viewBox="0 0 100 100"><path d="M50 50C35 25 12 30 12 50S35 75 50 50S88 25 88 50S65 75 50 50Z" fill="none" stroke="#7dff9a" stroke-width="4"/></svg>',
     守: '<svg viewBox="0 0 100 100"><path d="M50 10L82 22V50C82 70 66 84 50 90C34 84 18 70 18 50V22Z" fill="#2a3a6e" stroke="#b8c4d6" stroke-width="2.5"/></svg>',
   };
-  const EN = { 天使: 'ANGEL', 機械: 'MACHINE', 人間: 'HUMAN', 守: 'GUARD', 交換: 'SWAP', 反射: 'REFLECT', '3ダメ': 'BLOW', 不死: 'UNDYING', 自傷: 'WOUND' };
+  const EN = { 天使: 'ANGEL', 機械: 'MACHINE', 人間: 'HUMAN', 守: 'GUARD', 交換: 'SWAP', 反射: 'REFLECT', '3ダメ': 'BLOW', 不死: 'UNDYING', 自傷: 'WOUND', 反転: 'INVERT' };
 
   function makeCard(c, { hidden, pickable, onPick, selected, size } = {}) {
     const b = document.createElement('button');
@@ -350,7 +357,7 @@ button.card.pickable{cursor:pointer}
     b.classList.add('t-' + c.t);
     if (selected) b.classList.add('sel');
     b.innerHTML = '<div class="hd">' + c.t + '</div><div class="art">' + ART[c.t] +
-      ((c.t === '守' || c.t === '3ダメ' || c.t === '不死' || c.t === '自傷') ? '<span class="num">' + (c.t === '3ダメ' ? '3' : c.t === '不死' ? '∞' : c.t === '自傷' ? '-3' : '守') + '</span>' : '') + '</div><div class="ft">' + EN[c.t] + '</div>';
+      ((c.t === '守' || c.t === '3ダメ' || c.t === '不死' || c.t === '自傷' || c.t === '反転') ? '<span class="num">' + (c.t === '3ダメ' ? '3' : c.t === '不死' ? '∞' : c.t === '自傷' ? '-3' : c.t === '反転' ? '±' : '守') + '</span>' : '') + '</div><div class="ft">' + EN[c.t] + '</div>';
     b.setAttribute('aria-label', label(c));
     if (pickable && onPick) {
       b.classList.add('pickable');
