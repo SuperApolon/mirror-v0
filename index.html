@@ -208,7 +208,7 @@ button.card.pickable{cursor:pointer}
    <div class="zone fz" id="myField"></div>
    <div class="zone hz"><div class="hand" id="myHand"></div></div>
    <div class="hint" id="hint"></div>
-   <div class="bar"><span><span class="who">YOU</span><span class="life" id="myLife"></span><span class="pc">プール <b id="myPool">7</b></span></span><button type="button" class="tb" id="redrawBtn" title="手札の特殊を全部山札に戻し3枚引き直す（試合中1回）">全カード交換</button><button type="button" class="tb mobonly" id="logBtn">ログ ▼</button></div>
+   <div class="bar"><span><span class="who">YOU</span><span class="life" id="myLife"></span><span class="pc">プール <b id="myPool">7</b></span></span><button type="button" class="tb" id="redrawBtn" title="山札から1枚引き、手札から1枚選んで山札の底へ戻す（試合中1回）">1枚入替</button><button type="button" class="tb mobonly" id="logBtn">ログ ▼</button></div>
   </section>
  </main>
  <aside class="side">
@@ -226,7 +226,7 @@ button.card.pickable{cursor:pointer}
 <div class="binder"><div class="bpage bleft"><div class="bhead"><img src="assets/ui/binder/binder-head-tokushu@2x.png" alt="特殊"></div><div class="bgrid" id="bCands"></div></div><div class="bspine"></div><div class="bpage bright"><div class="bhead"><img src="assets/ui/binder/binder-head-kouchiku@2x.png" alt="構築"> <span class="bcount"><span id="bN">0</span>/7</span></div><div class="bpool" id="bPool"></div><div class="bnote">頁のカードをタップで外す</div></div></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
-<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br><span class="fl">痛みは消えない。返す側が勝つ。</span>対AI。ライフ5・最大5ラウンド。<br>「全カード交換」: 手札の特殊を全部山札に戻し（消失しない）3枚引き直す。あなた・AIとも試合中1回、手札選択前のみ。特殊カード「交換」とは別。<br>
+<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br><span class="fl">痛みは消えない。返す側が勝つ。</span>対AI。ライフ5・最大5ラウンド。<br>「1枚入替」: 山札から1枚引き、手札から1枚選んで山札の底へ戻す（消失しない・手札枚数は維持）。あなた・AIとも試合中1回。特殊カード「交換」とは別。<br>
 毎R: <b>手札の特殊をタップ＝即確定</b>。その特殊を場に出してラウンド確定。場は1枚。<br>
 特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈は各1枚、他は各2枚まで）。開始時にプールからランダム3枚を手札に引く。手札は持ち越し、場で消失した特殊1枚ぶんだけ残り山札から1枚補充（引いた札は山札から除去・二重に出ない）。使った特殊は消失。<br>
 守: 相手起源のダメージ（3ダメ・共沈）と相手のカード効果（交換・贈与など）をすべて無効（自傷は防げない）。<br>交換: 互いのライフを入れ替え。<br>反射: 跳ね返す痛みの構え（現行ルールでは跳ね返す対象ダメージなし）。<br>3ダメ: 相手に3ダメ（反射されない・守でブロック）。<br>不死: 出したRから2ターン後のRまで（例: R1で出す→R3終了まで）ライフ0以下でも敗北しない。反転でマイナスになっても生存、交換で0以下を受け取っても生存。期間終了時に0以下なら敗北。<br>自傷: 自分に3ダメ。<br>反転: 自分のライフの符号を反転（不死中はマイナスでも生存、保護外でマイナスなら敗北）。<br>共沈: お互いのライフ−2。<br>零化: 自分のライフを0に。<br>贈与: 相手のライフ＋2（上限5）。<br>
@@ -283,18 +283,19 @@ button.card.pickable{cursor:pointer}
   function refill(side, used) {
     if (used && side.deck && side.deck.length) side.hand.push(side.deck.splice((Math.random() * side.deck.length) | 0, 1)[0]);
   }
-  // 全カード交換: 手札の特殊を全部山札へ戻し（消失しない）、山札から改めて3枚引く。各サイド試合中1回
-  function redrawAll(side) {
-    side.deck = (side.deck || []).concat(side.hand);
-    const c = side.deck;
-    for (let i = c.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [c[i], c[j]] = [c[j], c[i]]; }
-    side.hand = c.splice(0, Math.min(3, c.length));
+  // 1枚入替: 山札から1枚引き → 手札から1枚選んで山札の底へ戻す（消失しない）。各サイド試合中1回
+  function drawOne(side) {
+    if (!side.deck || !side.deck.length) return false;
+    side.hand.push(side.deck.splice((Math.random() * side.deck.length) | 0, 1)[0]);
     side.redrawn = true;
+    return true;
   }
+  function discardTo(side, i) { side.deck.push(side.hand.splice(i, 1)[0]); }
   function myRedraw() {
-    if (!S || S.over || busy || S.me.redrawn) return;
-    redrawAll(S.me); sel = -1;
-    S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなたが全カード交換';
+    if (!S || S.over || busy || S.me.redrawn || S.me.discarding) return;
+    if (!drawOne(S.me)) return;
+    S.me.discarding = true; sel = -1;
+    S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなたが1枚入替（ドロー）';
     render();
   }
   function label(c) { return c ? c.t : 'なし'; }
@@ -400,11 +401,12 @@ button.card.pickable{cursor:pointer}
     busy = true;
     try {
       const msp = sel >= 0 && sel < S.me.hand.length ? S.me.hand[sel] : null;
-      if (!S.ai.redrawn && S.ai.hand.length && (S.ai.hand.length < 2 || Math.random() < 0.25)) {
-        redrawAll(S.ai);
+      if (!S.ai.redrawn && S.ai.deck && S.ai.deck.length && (S.ai.hand.length < 2 || Math.random() < 0.25)) {
+        drawOne(S.ai);
+        discardTo(S.ai, (Math.random() * S.ai.hand.length) | 0);
         S.missIndex = S.ai.hand.length ? (Math.random() * S.ai.hand.length) | 0 : -1;
         S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
-        S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': AIが全カード交換';
+        S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': AIが1枚入替';
       }
       const ap = aiPick();
       const o = sim({ round: S.round, me: S.me, ai: S.ai }, { sp: msp }, ap);
@@ -559,12 +561,14 @@ button.card.pickable{cursor:pointer}
         pickable: canPick,
         onPick: () => {
           if (busy || S.over) return;
+          if (S.me.discarding) { discardTo(S.me, i); S.me.discarding = false; sel = -1;
+            S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなたが1枚を山札の底へ'; render(); return; }
           play(i); // 押したら即場へ出してラウンド確定
         },
       }));
     });
-    { const rb = $('redrawBtn'); rb.disabled = !canPick || S.me.redrawn || !S.me.hand.length; rb.textContent = S.me.redrawn ? '全カード交換（済）' : '全カード交換'; }
-    $('hint').textContent = S.over ? '' : busy ? '結果表示中…' : '特殊をタップ＝出して確定';
+    { const rb = $('redrawBtn'); rb.disabled = !canPick || S.me.redrawn || !(S.me.deck && S.me.deck.length); rb.textContent = S.me.discarding ? '捨てる1枚を選択' : S.me.redrawn ? '1枚入替（済）' : '1枚入替'; }
+    $('hint').textContent = S.over ? '' : busy ? '結果表示中…' : S.me.discarding ? '山札の底へ戻す1枚をタップ' : '特殊をタップ＝出して確定';
 
     const ov = $('over');
     if (S.over) {
