@@ -156,6 +156,11 @@ button.card.pickable{cursor:pointer}
 .binder .bpool{border:1px solid rgba(90,55,20,.5);background:rgba(255,245,220,.25);max-width:none;flex:1;align-content:flex-start}
 .bnote{font-size:10px;text-align:center;font-family:serif;opacity:.75}
 @media (max-width:760px){.binder{flex-direction:column}.bspine{width:auto;height:10px;background:linear-gradient(#8a6a3a,#3a2410 50%,#8a6a3a)}.bleft{border-radius:6px 6px 0 0}.bright{border-radius:0 0 6px 6px}.binder .bgrid{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}.binder .bgrid .card{--hw:64px;--hh:96px}}
+
+.binder{background:url(assets/ui/pr-binder-spread.jpg) center/100% 100% no-repeat,#3b2414}
+.bpage{background:linear-gradient(rgba(243,227,191,.82),rgba(230,207,156,.86))}
+.build:has(.binder){background:linear-gradient(rgba(13,15,26,.78),rgba(13,15,26,.9)),url(assets/ui/pr-binder-cover.jpg) center/cover fixed}
+.bslot{min-height:44px;min-width:44px;cursor:pointer}.binder .bpool .card{min-width:44px;min-height:44px}
 </style>
 </head>
 <body>
@@ -575,6 +580,7 @@ button.card.pickable{cursor:pointer}
       const slot = document.createElement('div'); slot.className = 'bslot' + (n ? ' on' : '') + (ok ? '' : ' full');
       slot.appendChild(makeCard(c, { pickable: ok, selected: n > 0, onPick: () => { if (bp.length < POOL_N && canAdd(bp, c.t)) { bp.push({ ...c }); renderBuild(); } } }));
       slot.insertAdjacentHTML('beforeend', '<div class="bct">' + d.name + ' ' + n + '/' + d.limit + '</div><div class="bfl">' + (d.flavor || '') + '</div>');
+      if (ok) slot.addEventListener('click', e => { if (e.target === slot || !e.target.closest('button')) slot.querySelector('button').click(); });
       cd.appendChild(slot);
     });
     const pl = $('bPool'); pl.innerHTML = '';
