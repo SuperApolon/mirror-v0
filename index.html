@@ -134,9 +134,9 @@ button.card.pickable{cursor:pointer}
 <div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/10</div><div class="bpool" id="bPool"></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム10）</button></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
-<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。試合前にプール10枚を構築し、毎R残プールからランダム3枚が手札。出した札はプールから消失。カード: 天使／機械／人間（各1〜2）＋守。<br>
-三すくみ: 機械＞天使＞人間＞機械。異種は優位側が劣勢側のダメージを無効（勝ち側ダメのみ）。<br>
-同種は相殺: 差分が小さい方へ（同値なら0）。守: そのラウンド受けるダメを0（与ダメなし）。<br>
+<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。試合前にプール10枚を構築し、毎R残プールからランダム3枚が手札。出した札はプールから消失。カード: 天使／機械／人間／守（数値なし）。<br>
+三すくみ: 機械＞天使＞人間＞機械。優位側が相手に1ダメージ。<br>
+同種はあいこ（双方0）。守: そのラウンド受けるダメを0（与ダメなし）。<br>
 欠落: 相手手札の1枚は「？」、残りは公開。勝敗: ライフ0／5R後は残ライフ→残手札。<br>
 操作: 自分の手札をタップで出す。結果のあと自動で次ラウンドへ。</div></div>
 <script>
@@ -150,8 +150,7 @@ button.card.pickable{cursor:pointer}
 
   const POOL_N = 10;
   const CANDS = [];
-  for (const t of ['天使', '機械', '人間']) for (const v of [1, 2]) CANDS.push({ t, v });
-  CANDS.push({ t: '守', v: 0 });
+  for (const t of ['天使', '機械', '人間', '守']) CANDS.push({ t });
   function randomPool() {
     return Array.from({ length: POOL_N }, () => ({ ...CANDS[(Math.random() * CANDS.length) | 0] }));
   }
@@ -172,25 +171,16 @@ button.card.pickable{cursor:pointer}
   }
 
   function label(c) {
-    return c.t === '守' ? '守' : c.t + c.v;
+    return c.t;
   }
 
   // returns [dmgToPlayerCardOwner=x, dmgToY]
   function resolve(x, y) {
     let dx = 0, dy = 0;
-    if (x.t !== '守' && y.t !== '守') {
-      if (x.t === y.t) {
-        const d = x.v - y.v;
-        if (d > 0) dy = d;
-        else if (d < 0) dx = -d;
-      } else if (BEATS[x.t] === y.t) {
-        dy = x.v;
-      } else {
-        dx = y.v;
-      }
+    if (x.t !== '守' && y.t !== '守' && x.t !== y.t) {
+      if (BEATS[x.t] === y.t) dy = 1;
+      else dx = 1;
     }
-    if (x.t === '守') dx = 0;
-    if (y.t === '守') dy = 0;
     return [dx, dy];
   }
 
@@ -327,7 +317,7 @@ button.card.pickable{cursor:pointer}
     b.classList.add('t-' + c.t);
     if (selected) b.classList.add('sel');
     b.innerHTML = '<div class="hd">' + c.t + '</div><div class="art">' + ART[c.t] +
-      '<span class="num">' + (c.t === '守' ? '守' : c.v) + '</span></div><div class="ft">' + EN[c.t] + '</div>';
+      (c.t === '守' ? '<span class="num">守</span>' : '') + '</div><div class="ft">' + EN[c.t] + '</div>';
     b.setAttribute('aria-label', label(c));
     if (pickable && onPick) {
       b.classList.add('pickable');
