@@ -166,9 +166,9 @@ button.card.pickable{cursor:pointer}
 :root{--pr-bg:#0d0f1a;--pr-cyan:#3ff0ff;--pr-mag:#ff5fc8;--pr-ultra:#2A3C9E;--hit-min:48px;--badge:2.9rem}
 .build:has(.binder){background:linear-gradient(rgba(13,15,26,.6),rgba(13,15,26,.85)),url(assets/ui/binder/binder-bg-cover-markspace-1920x1080.jpg) center/cover fixed}
 .binder{position:relative;display:block;width:min(98vw,calc(86dvh*16/9));aspect-ratio:16/9;padding:0;border-radius:6px;background:url(assets/ui/binder/binder-bg-spread-blank-1920x1080.jpg) center/cover no-repeat,var(--pr-bg);box-shadow:0 10px 40px rgba(0,0,0,.8)}
-.binder .bpage{position:absolute;inset:19.5% 55% 19.5% 21%;background:transparent;color:#2e1c0c;text-shadow:0 1px 0 rgb(240 225 195/.5);padding:1rem;border-radius:6px;box-shadow:inset 0 0 28px 6px rgb(30 20 12/.22);overflow:auto;display:flex;flex-direction:column;gap:8px}
-.binder .bright{inset:19.5% 21% 19.5% 55%}
-.binder .bpage::before{content:none}
+.binder .bpage{position:absolute;inset:19% 54% 20% 20%;background:transparent;color:#2e1c0c;text-shadow:0 1px 0 rgb(240 225 195/.5);padding:1rem;border-radius:6px;box-shadow:none;mix-blend-mode:normal;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.binder .bright{inset:19% 20% 20% 54%}
+.binder .bpage::before{content:none}.binder .bpage .card,.binder .bdslot,.binder .bslot{filter:drop-shadow(0 4px 6px rgb(20 12 6/.55))}
 .binder .bpage>*{position:relative;z-index:1}
 .binder .bspine{display:none}
 .bhead{border:0;margin:0 0 4px;padding:0;color:var(--pr-cyan);display:flex;align-items:center;justify-content:center;gap:8px}
