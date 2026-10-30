@@ -124,7 +124,7 @@ button.card.pickable{cursor:pointer}
 <div class="app">
  <main class="board">
   <section class="half ai">
-   <div class="bar"><span><span class="who">AI</span><span class="life" id="aiLife"></span><span class="pc">プール <b id="aiPool">10</b></span></span><span class="mobonly">R <b id="round">1</b>/5</span><span><a class="tb" href="cards.html" style="text-decoration:none;margin-right:4px">効果</a><button type="button" class="tb" id="rulesBtn">ルール</button></span></div>
+   <div class="bar"><span><span class="who">AI</span><span class="life" id="aiLife"></span><span class="pc">プール <b id="aiPool">7</b></span></span><span class="mobonly">R <b id="round">1</b>/5</span><span><a class="tb" href="cards.html" style="text-decoration:none;margin-right:4px">効果</a><button type="button" class="tb" id="rulesBtn">ルール</button></span></div>
    <div class="zone"><div class="hand" id="aiHand"></div></div>
    <div class="zone fz" id="aiField"></div>
   </section>
@@ -133,7 +133,7 @@ button.card.pickable{cursor:pointer}
    <div class="zone fz" id="myField"></div>
    <div class="zone hz"><div class="hand" id="myHand"></div><div class="attrs" id="attrBtns"></div></div>
    <div class="hint" id="hint"></div>
-   <div class="bar"><span><span class="who">YOU</span><span class="life" id="myLife"></span><span class="pc">プール <b id="myPool">10</b></span></span><button type="button" class="tb mobonly" id="logBtn">ログ ▼</button></div>
+   <div class="bar"><span><span class="who">YOU</span><span class="life" id="myLife"></span><span class="pc">プール <b id="myPool">7</b></span></span><button type="button" class="tb mobonly" id="logBtn">ログ ▼</button></div>
   </section>
  </main>
  <aside class="side">
@@ -147,13 +147,13 @@ button.card.pickable{cursor:pointer}
 </div>
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
-<div class="build" id="build"><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど10枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
-<div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/10</div><div class="bpool" id="bPool"></div>
-<div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム10）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
+<div class="build" id="build"><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
+<div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/7</div><div class="bpool" id="bPool"></div>
+<div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
 <div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。<br>
 毎R: <b>押したら即確定</b>。属性ボタン（天使／人間／機械）＝その属性で確定（特殊なし）。特殊をタップ＝その特殊を場に出して確定（属性なし。相手が属性を出していれば属性ダメ1が直撃し、自傷・3ダメ等と合算）。場は1枚。属性は通常コマンドで毎R使え、消失しない。<br>
-特殊: 試合前に特殊だけでプール10枚を構築（3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで）。毎R残プールからランダム3枚が手札。使った特殊は消失（封印で無効でも消費）。<br>
+特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで）。毎R残プールからランダム3枚が手札。使った特殊は消失（封印で無効でも消費）。<br>
 三すくみ: 機械＞天使＞人間＞機械。勝った側が相手に1ダメ。同種はあいこ。<br>
 守: 相手起源のダメージ（属性・3ダメ・反射・共沈）と相手のカード効果（交換・鎖・贈与など）をすべて無効（自傷は防げない）。<br>交換: 互いのライフを入れ替え。<br>反射: 属性で負けたとき、その1ダメを勝ち側へ跳ね返す。<br>3ダメ: 相手に3ダメ（反射されない・守でブロック）。<br>不死: 出したRから2ターン後のRまで（例: R1で出す→R3終了まで）ライフ0以下でも敗北しない。反転でマイナスになっても生存、交換で0以下を受け取っても生存。期間終了時に0以下なら敗北。<br>自傷: 自分に3ダメ。<br>反転: 自分のライフの符号を反転（不死中はマイナスでも生存、保護外でマイナスなら敗北）。<br>共沈: お互いのライフ−2。<br>零化: 自分のライフを0に。<br>贈与: 相手のライフ＋2（上限5）。<br>鎖: 出したRとその次のR、<b>相手の特殊効果を無効</b>（札は出て消費される。属性は対象外。既に発動中の不死保護は消えない）。<br>
 ※0以下は不死保護中なら継続、保護外なら敗北。ライフはマイナス表示あり。<br>
@@ -169,7 +169,7 @@ button.card.pickable{cursor:pointer}
   const AUTO_NEXT_MS = 1000; // 結果表示→自動で次ラウンド
   let sel = -1;
 
-  const POOL_N = 10;
+  const POOL_N = 7;
   const ATTRS = ['天使', '人間', '機械'];
   const SPECIALS = ['守', '交換', '反射', '3ダメ', '不死', '自傷', '反転', '共沈', '零化', '贈与', '鎖'];
   const CANDS = SPECIALS.map(t => ({ t }));
