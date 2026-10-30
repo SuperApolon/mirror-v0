@@ -157,7 +157,7 @@ button.card.pickable{cursor:pointer}
 .bnote{font-size:10px;text-align:center;font-family:serif;opacity:.75}
 @media (max-width:760px){.binder{flex-direction:column}.bspine{width:auto;height:10px;background:linear-gradient(#8a6a3a,#3a2410 50%,#8a6a3a)}.bleft{border-radius:6px 6px 0 0}.bright{border-radius:0 0 6px 6px}.binder .bgrid{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}.binder .bgrid .card{--hw:64px;--hh:96px}}
 
-.binder{background:url(assets/ui/pr-binder-spread.jpg) center/100% 100% no-repeat,#3b2414}
+.binder{background:url(assets/ui/pr-binder-spread-blank.jpg) center/100% 100% no-repeat,#3b2414}
 .bpage{background:linear-gradient(rgba(243,227,191,.82),rgba(230,207,156,.86))}
 .build:has(.binder){background:linear-gradient(rgba(13,15,26,.78),rgba(13,15,26,.9)),url(assets/ui/pr-binder-cover.jpg) center/cover fixed}
 .bslot{min-height:44px;min-width:44px;cursor:pointer}.binder .bpool .card{min-width:44px;min-height:44px}
@@ -165,7 +165,7 @@ button.card.pickable{cursor:pointer}
 /* ===== ルクスUI 初回（BINDER-UI-SPEC）===== */
 :root{--pr-bg:#0d0f1a;--pr-cyan:#3ff0ff;--pr-mag:#ff5fc8;--pr-ultra:#2A3C9E;--hit-min:48px;--badge:2.9rem}
 .build:has(.binder){background:linear-gradient(rgba(13,15,26,.6),rgba(13,15,26,.85)),url(assets/ui/binder/binder-bg-cover-1920x1080.jpg) center/cover fixed}
-.binder{position:relative;display:block;width:min(98vw,calc(86dvh*16/9));aspect-ratio:16/9;padding:0;border-radius:6px;background:url(assets/ui/binder/binder-bg-spread-1920x1080.jpg) center/cover no-repeat,var(--pr-bg);box-shadow:0 10px 40px rgba(0,0,0,.8)}
+.binder{position:relative;display:block;width:min(98vw,calc(86dvh*16/9));aspect-ratio:16/9;padding:0;border-radius:6px;background:url(assets/ui/pr-binder-spread-blank.jpg) center/cover no-repeat,var(--pr-bg);box-shadow:0 10px 40px rgba(0,0,0,.8)}
 .binder .bpage{position:absolute;inset:17% 52.5% 14% 20.5%;background:rgb(13 15 26/.88);color:#e8f6ff;padding:1rem;border-radius:4px;box-shadow:none;overflow:auto;display:flex;flex-direction:column;gap:8px}
 .binder .bright{inset:17% 20.5% 14% 52.5%}
 .binder .bspine{display:none}
@@ -180,7 +180,7 @@ button.card.pickable{cursor:pointer}
 .bslot .bct,.bslot.on .bct{color:#e8f6ff}.bslot .bfl{color:#b9c6e6}
 .binder .bpool{border:1px solid rgba(63,240,255,.35);background:rgba(42,60,158,.15)}
 .bnote{color:#b9c6e6}
-@media (max-width:600px){.binder{aspect-ratio:auto;width:100%;background:url(assets/ui/binder/binder-bg-spread-1920x1080.jpg) center/cover,var(--pr-bg);padding:8px 8px 8px calc(48px*.6)}
+@media (max-width:600px){.binder{aspect-ratio:auto;width:100%;background:url(assets/ui/pr-binder-spread-blank.jpg) center/cover,var(--pr-bg);padding:8px 8px 8px calc(48px*.6)}
 .binder .bpage,.binder .bright{position:static;margin-bottom:8px}
 .binder .bspine{display:block;position:absolute;left:0;top:0;bottom:0;width:calc(48px*.6);height:auto;background:url(assets/ui/binder/binder-spine-alpha@2x.png) center/100% 100%}
 .binder .bgrid{grid-template-columns:repeat(3,1fr)}}
