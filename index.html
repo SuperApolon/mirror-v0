@@ -74,7 +74,6 @@ button.card.pickable{cursor:pointer}
 .zone.fz .card.field{max-height:100%;height:var(--fh)}
 .abtn{font:inherit;font-weight:900;font-size:15px;padding:8px 18px;border-radius:10px;background:#121628;color:var(--c1);border:2px solid var(--c1);cursor:pointer;box-shadow:0 0 8px color-mix(in srgb,var(--c1) 45%,transparent)}
 .abtn:disabled{opacity:.35;cursor:default}
-.t-鎖{--c1:#a0a8b8;--c2:#3a3f4a}
 .hint{font-size:11px;color:var(--me);opacity:.75;height:14px;text-align:center}
 .tb{background:none;border:1px solid rgba(184,196,214,.35);color:var(--fg);font:inherit;font-size:12px;border-radius:8px;padding:2px 8px;cursor:pointer}
 .side{display:none}
@@ -126,7 +125,6 @@ button.card.pickable{cursor:pointer}
 .build .lore1{font-size:clamp(14px,1.6vw,22px);text-align:center}.build .lore{max-width:min(92vw,900px);margin:0 auto 12px;font-size:clamp(12px,1.1vw,16px);text-align:center}
 .build{background:linear-gradient(rgba(13,15,26,.82),rgba(13,15,26,.92)),url(assets/key/pr-title-bg.jpg) center/cover fixed}
 .ai .card.q .qm{filter:blur(1.2px)}
-.card.t-鎖{box-shadow:0 0 16px #a0a8b8,0 0 4px #3ff0ff}
 .card.t-不死::after{content:'';position:absolute;inset:-1px;border:2px solid #7dff9a66;transform:translate(4px,-3px);pointer-events:none;border-radius:inherit}
 /* fit: 盤面を常に1画面内へ（dvh基準でカード/属性ボタンを縮める。見た目のみ） */
 .app{height:100vh;height:100dvh;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom));padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}
@@ -208,7 +206,7 @@ button.card.pickable{cursor:pointer}
   <div class="mirror"><div id="status"></div><div class="band" id="band"><span id="bandL"></span><span id="bandR"></span></div></div>
   <section class="half me">
    <div class="zone fz" id="myField"></div>
-   <div class="zone hz"><div class="hand" id="myHand"></div><div class="attrs" id="attrBtns"></div></div>
+   <div class="zone hz"><div class="hand" id="myHand"></div></div>
    <div class="hint" id="hint"></div>
    <div class="bar"><span><span class="who">YOU</span><span class="life" id="myLife"></span><span class="pc">プール <b id="myPool">7</b></span></span><button type="button" class="tb" id="redrawBtn" title="手札の特殊を全部山札に戻し3枚引き直す（試合中1回）">全カード交換</button><button type="button" class="tb mobonly" id="logBtn">ログ ▼</button></div>
   </section>
@@ -224,22 +222,18 @@ button.card.pickable{cursor:pointer}
 </div>
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
-<div class="build" id="build"><img class="klogo" src="assets/logo/pain-reflection-wide-sub-1280x320.png" alt="Pain Reflection"><div class="lore1">痛みは消えない。返す側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。相手の手が刺さるたび、こちらの傷が熱を持つ。痛みは嘘をつかない。ただ、跳ね返すまで消えない。勝つのは強い手ではない。受けた傷を、正確に返した側だ。一瞬のズレが、すべてを決める。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
+<div class="build" id="build"><img class="klogo" src="assets/logo/pain-reflection-wide-sub-1280x320.png" alt="Pain Reflection"><div class="lore1">痛みは消えない。返す側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。相手の手が刺さるたび、こちらの傷が熱を持つ。痛みは嘘をつかない。ただ、跳ね返すまで消えない。勝つのは強い手ではない。受けた傷を、正確に返した側だ。一瞬のズレが、すべてを決める。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈は各1枚、他は各2枚まで・ちょうど7枚）</div>
 <div class="binder"><div class="bpage bleft"><div class="bhead"><img src="assets/ui/binder/binder-head-tokushu@2x.png" alt="特殊"></div><div class="bgrid" id="bCands"></div></div><div class="bspine"></div><div class="bpage bright"><div class="bhead"><img src="assets/ui/binder/binder-head-kouchiku@2x.png" alt="構築"> <span class="bcount"><span id="bN">0</span>/7</span></div><div class="bpool" id="bPool"></div><div class="bnote">頁のカードをタップで外す</div></div></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
 <div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br><span class="fl">痛みは消えない。返す側が勝つ。</span>対AI。ライフ5・最大5ラウンド。<br>「全カード交換」: 手札の特殊を全部山札に戻し（消失しない）3枚引き直す。あなた・AIとも試合中1回、手札選択前のみ。特殊カード「交換」とは別。<br>
-毎R: <b>押したら即確定</b>。属性ボタン（天使／人間／機械）＝その属性で確定（特殊なし）。特殊をタップ＝その特殊を場に出して確定（属性なし。相手が属性を出していれば属性ダメ1が直撃し、自傷・3ダメ等と合算）。場は1枚。属性は通常コマンドで毎R使え、消失しない。<br>
-特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで）。開始時にプールからランダム3枚を手札に引く。手札は持ち越し、場で消失した特殊1枚ぶんだけ残り山札から1枚補充（引いた札は山札から除去・二重に出ない）。使った特殊は消失（封印で無効でも消費）。<br>
-三すくみ: 機械＞天使＞人間＞機械。勝った側が相手に1ダメ。同種はあいこ。<br>
-守: 相手起源のダメージ（属性・3ダメ・反射・共沈）と相手のカード効果（交換・鎖・贈与など）をすべて無効（自傷は防げない）。<br>交換: 互いのライフを入れ替え。<br>反射: 属性で負けたとき、その1ダメを勝ち側へ跳ね返す。<br>3ダメ: 相手に3ダメ（反射されない・守でブロック）。<br>不死: 出したRから2ターン後のRまで（例: R1で出す→R3終了まで）ライフ0以下でも敗北しない。反転でマイナスになっても生存、交換で0以下を受け取っても生存。期間終了時に0以下なら敗北。<br>自傷: 自分に3ダメ。<br>反転: 自分のライフの符号を反転（不死中はマイナスでも生存、保護外でマイナスなら敗北）。<br>共沈: お互いのライフ−2。<br>零化: 自分のライフを0に。<br>贈与: 相手のライフ＋2（上限5）。<br>鎖: 出したRとその次のR、<b>相手の特殊効果を無効</b>（札は出て消費される。属性は対象外。既に発動中の不死保護は消えない）。<br>
-※0以下は不死保護中なら継続、保護外なら敗北。ライフはマイナス表示あり。<br>
-解決順: 封印チェック → 不死開始 → 交換 → 反転 → ライフ演算（零化→贈与→共沈）→ 属性ダメ・3ダメ・自傷 → 勝敗判定。<br>
-欠落: 相手特殊手札の1枚は「？」。勝敗: ライフ0／5R後は残ライフ→残特殊数。<br>
-場は両者とも常に1枚: 特殊を出したら場には特殊のみ（選んだ属性は中央表示・ログに出る）、特殊なしなら属性カード。<br>操作: 特殊をタップすると即場へ（別の特殊で差し替え、場の札タップで取り消し）→属性ボタンでラウンド確定。特殊なしなら属性ボタンだけで出す。結果のあと自動で次ラウンドへ。</div></div>
+毎R: <b>手札の特殊をタップ＝即確定</b>。その特殊を場に出してラウンド確定。場は1枚。<br>
+特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈は各1枚、他は各2枚まで）。開始時にプールからランダム3枚を手札に引く。手札は持ち越し、場で消失した特殊1枚ぶんだけ残り山札から1枚補充（引いた札は山札から除去・二重に出ない）。使った特殊は消失。<br>
+守: 相手起源のダメージ（3ダメ・共沈）と相手のカード効果（交換・贈与など）をすべて無効（自傷は防げない）。<br>交換: 互いのライフを入れ替え。<br>反射: 跳ね返す痛みの構え（現行ルールでは跳ね返す対象ダメージなし）。<br>3ダメ: 相手に3ダメ（反射されない・守でブロック）。<br>不死: 出したRから2ターン後のRまで（例: R1で出す→R3終了まで）ライフ0以下でも敗北しない。反転でマイナスになっても生存、交換で0以下を受け取っても生存。期間終了時に0以下なら敗北。<br>自傷: 自分に3ダメ。<br>反転: 自分のライフの符号を反転（不死中はマイナスでも生存、保護外でマイナスなら敗北）。<br>共沈: お互いのライフ−2。<br>零化: 自分のライフを0に。<br>贈与: 相手のライフ＋2（上限5）。<br>
+解決順: 不死開始 → 交換 → 反転 → ライフ演算（零化→贈与→共沈）→ 3ダメ・自傷 → 勝敗判定。<br>
+場は両者とも常に1枚（特殊）。結果のあと自動で次ラウンドへ。</div></div>
 <script>
 (function () {
-  const BEATS = { 機械: '天使', 天使: '人間', 人間: '機械' };
   const $ = (id) => document.getElementById(id);
   let S = null;
   let busy = false;
@@ -247,7 +241,6 @@ button.card.pickable{cursor:pointer}
   let sel = -1;
 
   const POOL_N = 7;
-  const ATTRS = ['天使', '人間', '機械'];
   // ===== カード定義（ここに1行足せばバインダー・構築・AIプールが追従）=====
   // id: 内部ID / name: 表示名 / key: 特殊効果キー(解決ロジック側の c.t) / limit: 構築上限枚数 / art: 原画パス / flavor: 短文
   const CARD_DEFS = [
@@ -261,7 +254,6 @@ button.card.pickable{cursor:pointer}
     { id: 'cosink',   name: '共沈', key: '共沈', limit: 1, art: 'assets/sp/sp-cosink.jpg',   flavor: '二人で沈むなら、それは勝ちに近い。' },
     { id: 'nullify',  name: '零化', key: '零化', limit: 1, art: 'assets/sp/sp-nullify.jpg',  flavor: 'すべてを、欠けの形に戻す。' },
     { id: 'gift',     name: '贈与', key: '贈与', limit: 2, art: 'assets/sp/sp-gift.jpg',     flavor: '渡しすぎた光が、相手の余白を埋める。' },
-    { id: 'chain',    name: '鎖',   key: '鎖',   limit: 1, art: 'assets/sp/sp-chain.jpg',    flavor: 'つながったまま、動けなくなる美しさ。' },
   ];
   const CARD_BY_KEY = Object.fromEntries(CARD_DEFS.map(d => [d.key, d]));
   const SPECIALS = CARD_DEFS.map(d => d.key);
@@ -307,22 +299,16 @@ button.card.pickable{cursor:pointer}
   }
   function label(c) { return c ? c.t : 'なし'; }
 
-  // 1ラウンド解決（純関数）。st: {round, me:{life,undyingUntil,sealedUntil}, ai:{...}}
-  // m / a: { attr: '天使'|'人間'|'機械', sp: 特殊カード or null }
-  // 解決順: 封印チェック → 不死開始 → 交換 → 反転 → ライフ演算（零化→贈与→共沈）→ 属性ダメ・3ダメ・自傷 → 勝敗
-  // 鎖: 出したラウンドRとR+1、相手の特殊効果を無効（札は場に出て消費される）。属性コマンドは対象外。
-  //   封印チェックはラウンド開始時の封印状態で判定（同R同時の鎖は互いに有効→双方封印）。
-  //   既に発動済みの不死保護など継続効果は無効化しない（新たに出した特殊の効果のみ無効）。
+  // 1ラウンド解決（純関数）。m / a: { sp: 特殊カード or null }
+  // 解決順: 不死開始 → 交換 → 反転 → ライフ演算（零化→贈与→共沈）→ 3ダメ・自傷 → 勝敗
   function sim(st, m, a) {
-    const P = { life: st.me.life, undyingUntil: st.me.undyingUntil, sealedUntil: st.me.sealedUntil };
-    const Q = { life: st.ai.life, undyingUntil: st.ai.undyingUntil, sealedUntil: st.ai.sealedUntil };
+    const P = { life: st.me.life, undyingUntil: st.me.undyingUntil };
+    const Q = { life: st.ai.life, undyingUntil: st.ai.undyingUntil };
     const r = st.round;
-    const ms = m.sp && !(P.sealedUntil >= r) ? m.sp.t : null; // 有効な特殊（封印なら null）
-    const as = a.sp && !(Q.sealedUntil >= r) ? a.sp.t : null;
-    // 守: 守った側は相手起源のダメージ・カード効果（鎖/交換/贈与/共沈/3ダメ/属性/反射ダメ等）をすべて無効（自傷のみ自分起源で通る）
+    const ms = m.sp ? m.sp.t : null;
+    const as = a.sp ? a.sp.t : null;
+    // 守: 守った側は相手起源のダメージ・カード効果（交換/贈与/共沈/3ダメ等）をすべて無効（自傷のみ自分起源で通る）
     const gP = ms === '守', gQ = as === '守';
-    if (ms === '鎖' && !gQ) Q.sealedUntil = r + 1;
-    if (as === '鎖' && !gP) P.sealedUntil = r + 1;
     if (ms === '不死') P.undyingUntil = r + 2; // 出したR＋その後2ターン保護（反転でマイナス→次Rで交換、が可能）
     if (as === '不死') Q.undyingUntil = r + 2;
     const swapped = (ms === '交換' && !gQ) || (as === '交換' && !gP);
@@ -338,13 +324,6 @@ button.card.pickable{cursor:pointer}
     // ダメージ: 守=相手起源のダメージをすべて0（自傷は防げない）
     let dP = 0, dQ = 0;
     const hit = (toP, n) => { if (toP) { if (!gP) dP += n; } else { if (!gQ) dQ += n; } };
-    // 特殊を出した側は属性なし（attr=null）。属性がかち合わない＝相手の属性ダメ1がダイレクトに通る（自傷等と合算）
-    if (m.attr && a.attr ? m.attr !== a.attr : (m.attr || a.attr)) {
-      const meWins = m.attr && a.attr ? BEATS[m.attr] === a.attr : !!m.attr;
-      const loserSp = meWins ? as : ms;
-      // 反射: 負け側が反射なら属性ダメ1を勝ち側へ跳ね返す（反射同士でも負け側の反射のみ有効）
-      if (loserSp === '反射') hit(meWins, 1); else hit(!meWins, 1);
-    }
     if (ms === '3ダメ') hit(false, 3); // 3ダメは反射されない
     if (as === '3ダメ') hit(true, 3);
     if (ms === '自傷') dP += 3; // 自傷は守・反射と無関係（跳ね返らない・軽減されない）
@@ -357,17 +336,18 @@ button.card.pickable{cursor:pointer}
     const st = { round: S.round, me: S.me, ai: S.ai };
     const opts = [null, ...S.ai.hand];
     let best = null, bestScore = -1e9;
-    for (const [attr, sp] of [...ATTRS.map(x => [x, null]), ...S.ai.hand.map(c => [null, c])]) {
+    const aiOpts = S.ai.hand.length ? S.ai.hand : [null];
+    for (const sp of aiOpts) {
       let score = 0;
-      const myPairs = [...ATTRS.map(x => [x, null]), ...S.me.hand.map(c => [null, c])];
-      for (const [ma, msp] of myPairs) {
-        const o = sim(st, { attr: ma, sp: msp }, { attr, sp });
+      const myPairs = S.me.hand.length ? S.me.hand : [null];
+      for (const msp of myPairs) {
+        const o = sim(st, { sp: msp }, { sp });
         const dA = o.ai.life <= 0 && !(o.ai.undyingUntil >= S.round);
         const dM = o.me.life <= 0 && !(o.me.undyingUntil >= S.round);
         score += (o.ai.life - o.me.life) + (dM ? 20 : 0) - (dA ? 20 : 0);
       }
-      score = score / myPairs.length + (sp ? -0.2 : 0) + Math.random() * 0.4;
-      if (score > bestScore) { bestScore = score; best = { attr, sp }; }
+      score = score / myPairs.length + Math.random() * 0.4;
+      if (score > bestScore) { bestScore = score; best = { sp }; }
     }
     return best;
   }
@@ -391,7 +371,7 @@ button.card.pickable{cursor:pointer}
     S.log += (extra || '') + '\n終了: ' + endReason();
     if (S.missed) S.log += '\n欠落していたAIの札: ' + label(S.missed);
   }
-  const PROMPT = ' — 属性ボタン or 特殊をタップで即確定';
+  const PROMPT = ' — 特殊をタップで即確定';
   function advanceRound() {
     S.round += 1; // 手札は持ち越し（ドローし直さない）
     S.status = 'ラウンド ' + S.round + PROMPT;
@@ -401,22 +381,21 @@ button.card.pickable{cursor:pointer}
     busy = false; sel = -1;
     S = {
       round: 1, over: false,
-      me: { life: 5, pool: myPool.map(c => ({ ...c })), hand: [], undyingUntil: 0, sealedUntil: 0 },
-      ai: { life: 5, pool: randomPool(), hand: [], undyingUntil: 0, sealedUntil: 0 },
-      myAttr: '機械', last: null, res: null, hist: [], missIndex: -1, missed: null, log: '',
+      me: { life: 5, pool: myPool.map(c => ({ ...c })), hand: [], undyingUntil: 0 },
+      ai: { life: 5, pool: randomPool(), hand: [], undyingUntil: 0 },
+      last: null, res: null, hist: [], missIndex: -1, missed: null, log: '',
       status: 'ラウンド 1' + PROMPT,
     };
     deal();
     $('build').hidden = true;
     render();
   }
-  const pairText = (p) => p.sp ? p.sp.t : p.attr;
+  const pairText = (p) => p.sp ? p.sp.t : '—';
 
-  // 属性ボタン: その属性で確定（特殊なし）／特殊タップ: その特殊のみで確定（属性なし→相手の属性ダメ1が直撃）
-  function play(attr, spIdx = -1) {
+  // 特殊タップ: その特殊を出して即確定
+  function play(spIdx) {
     if (!S || S.over || busy) return;
-    if (spIdx >= 0) attr = null; // 特殊を出したら属性なし
-    else if (!ATTRS.includes(attr)) return;
+    if (!(spIdx >= 0 && spIdx < S.me.hand.length)) return;
     sel = spIdx;
     busy = true;
     try {
@@ -428,8 +407,8 @@ button.card.pickable{cursor:pointer}
         S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': AIが全カード交換';
       }
       const ap = aiPick();
-      const o = sim({ round: S.round, me: S.me, ai: S.ai }, { attr, sp: msp }, ap);
-      // 使った特殊は消失（封印で無効でも消費）
+      const o = sim({ round: S.round, me: S.me, ai: S.ai }, { sp: msp }, ap);
+      // 使った特殊は消失
       if (msp) { S.me.hand.splice(sel, 1); S.me.pool.splice(S.me.pool.indexOf(msp), 1); }
       if (ap.sp) {
         const ai = S.ai.hand.indexOf(ap.sp);
@@ -439,15 +418,15 @@ button.card.pickable{cursor:pointer}
       }
       refill(S.me, !!msp); refill(S.ai, !!ap.sp);
       const before = [S.me.life, S.ai.life];
-      Object.assign(S.me, { life: o.me.life, undyingUntil: o.me.undyingUntil, sealedUntil: o.me.sealedUntil });
-      Object.assign(S.ai, { life: o.ai.life, undyingUntil: o.ai.undyingUntil, sealedUntil: o.ai.sealedUntil });
+      Object.assign(S.me, { life: o.me.life, undyingUntil: o.me.undyingUntil });
+      Object.assign(S.ai, { life: o.ai.life, undyingUntil: o.ai.undyingUntil });
       // 表示用: 実際のライフ増減（交換・贈与・零化・共沈なども含む）
       o.dmgMe = before[0] - S.me.life; o.dmgAi = before[1] - S.ai.life;
-      const mp = { attr, sp: msp };
+      const mp = { sp: msp };
       S.last = [mp, ap];
       S.res = [o.dmgMe, o.dmgAi];
       S.hist.push({ r: S.round, mp, ap, dmgMe: o.dmgMe, dmgAi: o.dmgAi });
-      const sealedNote = (msp && !o.ms ? '（あなたの特殊は封印）' : '') + (ap.sp && !o.as ? '（AIの特殊は封印）' : '');
+      const sealedNote = '';
       S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなた ' + pairText(mp) + ' vs AI ' + pairText(ap) + sealedNote +
         ' → ' + (o.swapped ? 'ライフ交換 → ' : '') + 'あなた ' + sg(-o.dmgMe) + ' / AI ' + sg(-o.dmgAi) + '（ライフ ' + S.me.life + ' / ' + S.ai.life + '）';
       const lifeOver = dead(S.me, S.round) || dead(S.ai, S.round);
@@ -474,12 +453,11 @@ button.card.pickable{cursor:pointer}
     共沈: '<svg viewBox="0 0 100 100"><path d="M10 60Q30 45 50 60T90 60" fill="none" stroke="#6c8cff" stroke-width="5"/></svg>',
     零化: '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="34" fill="none" stroke="#dddddd" stroke-width="4"/></svg>',
     贈与: '<svg viewBox="0 0 100 100"><rect x="22" y="40" width="56" height="42" fill="none" stroke="#ffb0d0" stroke-width="4"/><path d="M50 40V82M22 40H78" stroke="#ffb0d0" stroke-width="4"/></svg>',
-    鎖: '<svg viewBox="0 0 100 100"><g fill="none" stroke="#a0a8b8" stroke-width="5"><ellipse cx="35" cy="50" rx="20" ry="12"/><ellipse cx="65" cy="50" rx="20" ry="12"/></g></svg>',
     不死: '<svg viewBox="0 0 100 100"><path d="M50 50C35 25 12 30 12 50S35 75 50 50S88 25 88 50S65 75 50 50Z" fill="none" stroke="#7dff9a" stroke-width="4"/></svg>',
     守: '<svg viewBox="0 0 100 100"><path d="M50 10L82 22V50C82 70 66 84 50 90C34 84 18 70 18 50V22Z" fill="#2a3a6e" stroke="#b8c4d6" stroke-width="2.5"/></svg>',
   };
-  (function(){const M={"守": "guard", "交換": "exchange", "反射": "reflect", "3ダメ": "dmg3", "不死": "immortal", "自傷": "selfharm", "反転": "reverse", "共沈": "cosink", "零化": "nullify", "贈与": "gift", "鎖": "chain"},A={"天使": "angel", "人間": "human", "機械": "machine"};CARD_DEFS.forEach(d=>{ART[d.key]='<img class="cimg" src="'+d.art+'" alt="">';});for(const k in A)ART[k]='<img class="cimg" src="assets/field/'+A[k]+'.jpg" alt="">';})();
-  const EN = { 天使: 'ANGEL', 機械: 'MACHINE', 人間: 'HUMAN', 守: 'GUARD', 交換: 'SWAP', 反射: 'REFLECT', '3ダメ': 'BLOW', 不死: 'UNDYING', 自傷: 'WOUND', 反転: 'INVERT', 共沈: 'SINK', 零化: 'ZERO', 贈与: 'GIFT', 鎖: 'CHAIN' };
+  (function(){const M={"守": "guard", "交換": "exchange", "反射": "reflect", "3ダメ": "dmg3", "不死": "immortal", "自傷": "selfharm", "反転": "reverse", "共沈": "cosink", "零化": "nullify", "贈与": "gift"};CARD_DEFS.forEach(d=>{ART[d.key]='<img class="cimg" src="'+d.art+'" alt="">';});})();
+  const EN = { 天使: 'ANGEL', 機械: 'MACHINE', 人間: 'HUMAN', 守: 'GUARD', 交換: 'SWAP', 反射: 'REFLECT', '3ダメ': 'BLOW', 不死: 'UNDYING', 自傷: 'WOUND', 反転: 'INVERT', 共沈: 'SINK', 零化: 'ZERO', 贈与: 'GIFT' };
 
   function makeCard(c, { hidden, pickable, onPick, selected, size } = {}) {
     const b = document.createElement('button');
@@ -495,7 +473,7 @@ button.card.pickable{cursor:pointer}
     b.classList.add('t-' + c.t);
     if (selected) b.classList.add('sel');
     b.innerHTML = '<div class="hd">' + c.t + '</div><div class="art">' + ART[c.t] +
-      ((c.t === '守' || c.t === '3ダメ' || c.t === '不死' || c.t === '自傷' || c.t === '反転' || c.t === '共沈' || c.t === '零化' || c.t === '贈与' || c.t === '鎖') ? '<span class="num">' + (c.t === '3ダメ' ? '3' : c.t === '不死' ? '∞' : c.t === '自傷' ? '-3' : c.t === '反転' ? '±' : c.t === '共沈' ? '-2' : c.t === '零化' ? '0' : c.t === '贈与' ? '+2' : c.t === '鎖' ? '封' : '守') + '</span>' : '') + '</div><div class="ft">' + EN[c.t] + '</div>';
+      ((c.t === '守' || c.t === '3ダメ' || c.t === '不死' || c.t === '自傷' || c.t === '反転' || c.t === '共沈' || c.t === '零化' || c.t === '贈与') ? '<span class="num">' + (c.t === '3ダメ' ? '3' : c.t === '不死' ? '∞' : c.t === '自傷' ? '-3' : c.t === '反転' ? '±' : c.t === '共沈' ? '-2' : c.t === '零化' ? '0' : c.t === '贈与' ? '+2' : '守') + '</span>' : '') + '</div><div class="ft">' + EN[c.t] + '</div>';
     b.setAttribute('aria-label', label(c));
     if (pickable && onPick) {
       b.classList.add('pickable');
@@ -558,8 +536,8 @@ button.card.pickable{cursor:pointer}
     aiF.innerHTML = ''; myF.innerHTML = '';
     if (S.last) {
       for (const [el, p] of [[myF, S.last[0]], [aiF, S.last[1]]]) {
-        // 場は常に1枚: 特殊を出したら特殊のみ、無ければ属性カード（属性自体は解決に使う。中央帯に「属性＋特殊」表示）
-        el.appendChild(makeCard(p.sp || { t: p.attr }, { size: 'field' }));
+        // 場は特殊のみ（出していなければ空場）
+        el.appendChild(p.sp ? makeCard(p.sp, { size: 'field' }) : Object.assign(document.createElement('div'), { className: 'card field slot' }));
       }
     } else {
       aiF.innerHTML = '<div class="card field slot"></div>';
@@ -581,19 +559,12 @@ button.card.pickable{cursor:pointer}
         pickable: canPick,
         onPick: () => {
           if (busy || S.over) return;
-          play(null, i); // 押したら即場へ出してラウンド確定（属性なし）
+          play(i); // 押したら即場へ出してラウンド確定
         },
       }));
     });
-    const ab = $('attrBtns'); ab.innerHTML = '';
-    for (const t of ATTRS) {
-      const b = document.createElement('button');
-      b.type = 'button'; b.className = 'abtn t-' + t; b.innerHTML = '<img class="aimg" src="assets/attr/attr-'+({天使:'angel',人間:'human',機械:'machine'})[t]+'.jpg" alt="">'; b.setAttribute('aria-label', t); b.title = t; b.disabled = !canPick;
-      b.addEventListener('click', () => play(t));
-      ab.appendChild(b);
-    }
     { const rb = $('redrawBtn'); rb.disabled = !canPick || S.me.redrawn || !S.me.hand.length; rb.textContent = S.me.redrawn ? '全カード交換（済）' : '全カード交換'; }
-    $('hint').textContent = S.over ? '' : busy ? '結果表示中…' : '属性ボタン＝その属性で確定／特殊タップ＝出して確定（属性なし・相手属性1ダメ直撃）';
+    $('hint').textContent = S.over ? '' : busy ? '結果表示中…' : '特殊をタップ＝出して確定';
 
     const ov = $('over');
     if (S.over) {
