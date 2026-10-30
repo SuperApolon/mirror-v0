@@ -159,7 +159,7 @@ button.card.pickable{cursor:pointer}
 ※0以下は不死保護中なら継続、保護外なら敗北。ライフはマイナス表示あり。<br>
 解決順: 封印チェック → 不死開始 → 交換 → 反転 → ライフ演算（零化→贈与→共沈）→ 属性ダメ・3ダメ・自傷 → 勝敗判定。<br>
 欠落: 相手特殊手札の1枚は「？」。勝敗: ライフ0／5R後は残ライフ→残特殊数。<br>
-場は両者とも常に1枚: 特殊を出したら場には特殊のみ（選んだ属性は中央表示・ログに出る）、特殊なしなら属性カード。<br>操作: 特殊をタップで選択（もう一度で解除）→属性ボタンで出す。結果のあと自動で次ラウンドへ。</div></div>
+場は両者とも常に1枚: 特殊を出したら場には特殊のみ（選んだ属性は中央表示・ログに出る）、特殊なしなら属性カード。<br>操作: 特殊をタップすると即場へ（別の特殊で差し替え、場の札タップで取り消し）→属性ボタンでラウンド確定。特殊なしなら属性ボタンだけで出す。結果のあと自動で次ラウンドへ。</div></div>
 <script>
 (function () {
   const BEATS = { 機械: '天使', 天使: '人間', 人間: '機械' };
@@ -272,7 +272,7 @@ button.card.pickable{cursor:pointer}
     S.log += (extra || '') + '\n終了: ' + endReason();
     if (S.missed) S.log += '\n欠落していたAIの札: ' + label(S.missed);
   }
-  const PROMPT = ' — 特殊を0〜1枚選び、属性ボタンで出す';
+  const PROMPT = ' — 属性ボタンで出す（特殊は先にタップで場へ・任意）';
   function advanceRound() {
     S.round += 1;
     deal();
@@ -421,7 +421,12 @@ button.card.pickable{cursor:pointer}
 
     const aiF = $('aiField'), myF = $('myField');
     aiF.innerHTML = ''; myF.innerHTML = '';
-    if (S.last) {
+    const pending = !S.over && !busy && sel >= 0 && sel < S.me.hand.length;
+    if (pending) {
+      // 確定前: 押した特殊をすぐ自分の場へ（場は1枚）。場の札をタップで手札へ戻す
+      myF.appendChild(makeCard(S.me.hand[sel], { size: 'field', pickable: true, onPick: () => { sel = -1; render(); } }));
+      aiF.innerHTML = '<div class="card field slot"></div>';
+    } else if (S.last) {
       for (const [el, p] of [[myF, S.last[0]], [aiF, S.last[1]]]) {
         // 場は常に1枚: 特殊を出したら特殊のみ、無ければ属性カード（属性自体は解決に使う。中央帯に「属性＋特殊」表示）
         el.appendChild(makeCard(p.sp || { t: p.attr }, { size: 'field' }));
@@ -442,12 +447,12 @@ button.card.pickable{cursor:pointer}
     const canPick = !S.over && !busy;
     if (sel >= S.me.hand.length) sel = -1;
     S.me.hand.forEach((c, i) => {
+      if (i === sel && !busy) return; // 場に出ている札は手札から外して表示
       myHand.appendChild(makeCard(c, {
         pickable: canPick,
-        selected: i === sel,
         onPick: () => {
           if (busy || S.over) return;
-          sel = sel === i ? -1 : i; render(); // 特殊は選択トグル（任意）。属性ボタンで確定
+          sel = sel === i ? -1 : i; render(); // 押したら即場へ（別の札で差し替え・同じ札/場の札で取り消し）。属性ボタンでラウンド確定
         },
       }));
     });
@@ -458,7 +463,7 @@ button.card.pickable{cursor:pointer}
       b.addEventListener('click', () => play(t));
       ab.appendChild(b);
     }
-    $('hint').textContent = S.over ? '' : busy ? '結果表示中…' : (sel >= 0 ? '特殊「' + S.me.hand[sel].t + '」選択中 — 属性ボタンで出す' : '特殊は任意（タップで選択）— 属性ボタンで出す');
+    $('hint').textContent = S.over ? '' : busy ? '結果表示中…' : (sel >= 0 ? '場に「' + S.me.hand[sel].t + '」— 属性ボタンで確定（場の札タップで戻す・別の特殊で差し替え）' : '属性ボタンで出す／特殊を出すなら先に特殊をタップ');
 
     const ov = $('over');
     if (S.over) {
