@@ -159,7 +159,7 @@ button.card.pickable{cursor:pointer}
 ※0以下は不死保護中なら継続、保護外なら敗北。ライフはマイナス表示あり。<br>
 解決順: 封印チェック → 不死開始 → 交換 → 反転 → ライフ演算（零化→贈与→共沈）→ 属性ダメ・3ダメ・自傷 → 勝敗判定。<br>
 欠落: 相手特殊手札の1枚は「？」。勝敗: ライフ0／5R後は残ライフ→残特殊数。<br>
-操作: 特殊をタップで選択（もう一度で解除）→属性ボタンで出す。結果のあと自動で次ラウンドへ。</div></div>
+場は両者とも常に1枚: 特殊を出したら場には特殊のみ（選んだ属性は中央表示・ログに出る）、特殊なしなら属性カード。<br>操作: 特殊をタップで選択（もう一度で解除）→属性ボタンで出す。結果のあと自動で次ラウンドへ。</div></div>
 <script>
 (function () {
   const BEATS = { 機械: '天使', 天使: '人間', 人間: '機械' };
@@ -423,8 +423,8 @@ button.card.pickable{cursor:pointer}
     aiF.innerHTML = ''; myF.innerHTML = '';
     if (S.last) {
       for (const [el, p] of [[myF, S.last[0]], [aiF, S.last[1]]]) {
-        el.appendChild(makeCard({ t: p.attr }, { size: 'field' }));
-        if (p.sp) { const c = makeCard(p.sp, { size: 'field' }); c.style.marginLeft = '8px'; el.appendChild(c); }
+        // 場は常に1枚: 特殊を出したら特殊のみ、無ければ属性カード（属性自体は解決に使う。中央帯に「属性＋特殊」表示）
+        el.appendChild(makeCard(p.sp || { t: p.attr }, { size: 'field' }));
       }
     } else {
       aiF.innerHTML = '<div class="card field slot"></div>';
