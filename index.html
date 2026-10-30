@@ -140,7 +140,7 @@ button.card.pickable{cursor:pointer}
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
 <div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。試合前にプール10枚を構築し、毎R残プールからランダム3枚が手札。出した札はプールから消失。カード: 天使／機械／人間／守／交換／反射／3ダメ／不死（数値なし・守／交換／反射／3ダメ／不死はデッキに各1枚まで）。<br>
 三すくみ: 機械＞天使＞人間＞機械。優位側が相手に1ダメージ。<br>
-同種はあいこ（双方0）。守: そのラウンド受けるダメを0（与ダメなし）。<br>交換: ダメージ解決の前に互いのライフを入れ替え（与ダメ・受ダメなし）。<br>反射: 天使／機械／人間からの攻撃を跳ね返し、攻撃側が1ダメ（反射同士・守・交換相手は0）。<br>3ダメ: 属性なし。相手に3ダメ（三すくみなし・反射されない・守でブロックされる）。交換と同時なら入れ替え後に3ダメ。<br>不死: 出したラウンドとその次のラウンド（計2ターン）、自分ライフが0以下でも試合継続（不死自体は与ダメなし・受ダメは通常どおり）。この間に交換でライフを入れ替え可。2ターン目終了時点でライフ0以下なら敗北。<br>
+同種はあいこ（双方0）。守: そのラウンド受けるダメを0（与ダメなし）。<br>交換: ダメージ解決の前に互いのライフを入れ替え（与ダメ・受ダメなし）。<br>反射: 天使／機械／人間からの攻撃を跳ね返し、攻撃側が1ダメ（反射同士・守・交換相手は0）。<br>3ダメ: 属性なし。相手に3ダメ（三すくみなし・反射されない・守でブロックされる）。交換と同時なら入れ替え後に3ダメ。<br>不死: 出したラウンドとその次のラウンド（計2ターン）、自分ライフが0以下でも試合継続（不死自体は与ダメなし・受ダメは通常どおり）。この間に交換でライフを入れ替え可。2ターン目終了時点でライフ0以下なら敗北。不死中のライフはマイナス表示（例: -2）されることがある。<br>
 欠落: 相手手札の1枚は「？」、残りは公開。勝敗: ライフ0／5R後は残ライフ→残手札。<br>
 操作: 自分の手札をタップで出す。結果のあと自動で次ラウンドへ。</div></div>
 <script>
@@ -362,6 +362,11 @@ button.card.pickable{cursor:pointer}
       if (i >= n) d.className = 'gone';
       el.appendChild(d);
     }
+    // 数値表示（0以下はクランプせずマイナスのまま表示。不死保護中に負数になりうる）
+    const v = document.createElement('b');
+    v.textContent = String(n);
+    v.style.cssText = 'margin-left:4px;font-size:12px' + (n <= 0 ? ';color:#ff4a4a' : '');
+    el.appendChild(v);
   }
 
   function resText(r) {
@@ -372,8 +377,8 @@ button.card.pickable{cursor:pointer}
   }
 
   function render() {
-    lives($('aiLife'), Math.max(0, S.ai.life));
-    lives($('myLife'), Math.max(0, S.me.life));
+    lives($('aiLife'), S.ai.life);
+    lives($('myLife'), S.me.life);
     const shownR = Math.min(S.round, 5);
     $('round').textContent = shownR;
     $('round2').textContent = shownR;
