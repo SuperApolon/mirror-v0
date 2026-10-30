@@ -153,7 +153,7 @@ button.card.pickable{cursor:pointer}
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
 <div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。<br>
 毎R: <b>押したら即確定</b>。属性ボタン（天使／人間／機械）＝その属性で確定（特殊なし）。特殊をタップ＝その特殊を場に出して確定（属性なし。相手が属性を出していれば属性ダメ1が直撃し、自傷・3ダメ等と合算）。場は1枚。属性は通常コマンドで毎R使え、消失しない。<br>
-特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで）。毎R残プールからランダム3枚が手札。使った特殊は消失（封印で無効でも消費）。<br>
+特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで）。開始時にプールからランダム3枚を手札に引く。手札は持ち越し、場で消失した特殊1枚ぶんだけ残り山札から1枚補充（引いた札は山札から除去・二重に出ない）。使った特殊は消失（封印で無効でも消費）。<br>
 三すくみ: 機械＞天使＞人間＞機械。勝った側が相手に1ダメ。同種はあいこ。<br>
 守: 相手起源のダメージ（属性・3ダメ・反射・共沈）と相手のカード効果（交換・鎖・贈与など）をすべて無効（自傷は防げない）。<br>交換: 互いのライフを入れ替え。<br>反射: 属性で負けたとき、その1ダメを勝ち側へ跳ね返す。<br>3ダメ: 相手に3ダメ（反射されない・守でブロック）。<br>不死: 出したRから2ターン後のRまで（例: R1で出す→R3終了まで）ライフ0以下でも敗北しない。反転でマイナスになっても生存、交換で0以下を受け取っても生存。期間終了時に0以下なら敗北。<br>自傷: 自分に3ダメ。<br>反転: 自分のライフの符号を反転（不死中はマイナスでも生存、保護外でマイナスなら敗北）。<br>共沈: お互いのライフ−2。<br>零化: 自分のライフを0に。<br>贈与: 相手のライフ＋2（上限5）。<br>鎖: 出したRとその次のR、<b>相手の特殊効果を無効</b>（札は出て消費される。属性は対象外。既に発動中の不死保護は消えない）。<br>
 ※0以下は不死保護中なら継続、保護外なら敗北。ライフはマイナス表示あり。<br>
@@ -181,21 +181,22 @@ button.card.pickable{cursor:pointer}
     while (p.length < POOL_N) { const c = CANDS[(Math.random() * CANDS.length) | 0]; if (canAdd(p, c.t)) p.push({ ...c }); }
     return p;
   }
-  function dealHand(pool) {
-    const c = pool.slice();
+  // 山札（deck）= 未ドローの特殊。手札に引いた札は山札から除去し、二度と山札に戻さない
+  function dealHand(side) {
+    const c = side.pool.slice();
     for (let i = c.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [c[i], c[j]] = [c[j], c[i]]; }
-    return c.slice(0, 3);
+    side.hand = c.slice(0, 3);
+    side.deck = c.slice(3);
   }
   function deal() {
-    S.me.hand = dealHand(S.me.pool);
-    S.ai.hand = dealHand(S.ai.pool);
+    dealHand(S.me);
+    dealHand(S.ai);
     S.missIndex = S.ai.hand.length ? (Math.random() * S.ai.hand.length) | 0 : -1;
     S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
   }
-  // 使った特殊の直後に、手札に無いプール札から1枚補充（プール切れ時のみ減る）
-  function refill(side) {
-    const rest = side.pool.filter(c => !side.hand.includes(c));
-    while (side.hand.length < 3 && rest.length) side.hand.push(rest.splice((Math.random() * rest.length) | 0, 1)[0]);
+  // 場で消失した特殊1枚ぶんだけ山札から補充（山札から除去）。山札切れなら補充なし
+  function refill(side, used) {
+    if (used && side.deck && side.deck.length) side.hand.push(side.deck.splice((Math.random() * side.deck.length) | 0, 1)[0]);
   }
   function label(c) { return c ? c.t : 'なし'; }
 
@@ -285,8 +286,7 @@ button.card.pickable{cursor:pointer}
   }
   const PROMPT = ' — 属性ボタン or 特殊をタップで即確定';
   function advanceRound() {
-    S.round += 1;
-    deal();
+    S.round += 1; // 手札は持ち越し（ドローし直さない）
     S.status = 'ラウンド ' + S.round + PROMPT;
   }
   function newGame(myPool) {
@@ -323,7 +323,7 @@ button.card.pickable{cursor:pointer}
         if (S.missIndex === ai) S.missed = ap.sp; else if (S.missIndex > ai) S.missIndex -= 1;
         S.ai.pool.splice(S.ai.pool.indexOf(ap.sp), 1);
       }
-      refill(S.me); refill(S.ai);
+      refill(S.me, !!msp); refill(S.ai, !!ap.sp);
       const before = [S.me.life, S.ai.life];
       Object.assign(S.me, { life: o.me.life, undyingUntil: o.me.undyingUntil, sealedUntil: o.me.sealedUntil });
       Object.assign(S.ai, { life: o.ai.life, undyingUntil: o.ai.undyingUntil, sealedUntil: o.ai.sealedUntil });
