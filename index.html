@@ -181,13 +181,19 @@ button.card.pickable{cursor:pointer}
 .binder .bpool{border:1px solid rgba(63,240,255,.35);background:rgba(42,60,158,.15)}
 .bnote{color:#b9c6e6}
 
-/* 右ページ: 構築済みデッキを扇状の「手札」演出で */
-.binder .bpool{display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:14px 0;padding:18px 10px 10px;border:0;border-radius:6px;background:radial-gradient(ellipse at 50% 60%,rgba(63,240,255,.16),rgba(42,60,158,.18) 45%,transparent 75%);box-shadow:inset 0 0 0 2px rgba(63,240,255,.25),inset 0 -14px 30px rgba(255,95,200,.12)}
-.binder .bpool>*{position:relative;margin:0 -5px;transform:rotate(var(--r,0deg)) translateY(var(--y,0px));transform-origin:50% 120%;transition:transform .18s,box-shadow .18s,filter .18s;box-shadow:0 8px 16px rgba(0,0,0,.65),0 0 0 2px rgba(63,240,255,.55);filter:saturate(1.05)}
-.binder .bpool>*:nth-child(1){--r:-9deg;--y:10px;z-index:1}.binder .bpool>*:nth-child(2){--r:-5deg;--y:3px;z-index:2}.binder .bpool>*:nth-child(3){--r:-2deg;--y:0px;z-index:3}.binder .bpool>*:nth-child(4){--r:2deg;--y:0px;z-index:4}
-.binder .bpool>*:nth-child(5){--r:-6deg;--y:6px;z-index:5}.binder .bpool>*:nth-child(6){--r:0deg;--y:-2px;z-index:6}.binder .bpool>*:nth-child(7){--r:6deg;--y:6px;z-index:7}
-.binder .bpool>*:hover,.binder .bpool>*:focus-visible{z-index:20;transform:rotate(0) translateY(-10px) scale(1.08);box-shadow:0 0 0 3px var(--pr-mag),0 0 22px var(--pr-mag),0 12px 22px rgba(0,0,0,.7)}
-.binder .bpool:empty::before{content:"特殊を7枚、頁へ";margin:auto;color:rgba(63,240,255,.6);font:700 14px serif;letter-spacing:.2em}
+/* 右ページ: 構築7枚 = ルクス本線 A 扇形 (DECK7-LAYOUT.md) */
+.binder .bpool{display:block;position:relative;padding:0;border:0;border-radius:6px;background:radial-gradient(ellipse at 50% 70%,rgba(63,240,255,.16),rgba(42,60,158,.18) 45%,transparent 75%);box-shadow:inset 0 0 0 2px rgba(63,240,255,.2);overflow:visible;touch-action:pan-y}
+.deck7{--n:7;--step:8deg;--h:min(19dvh,8.5vw);--hh:var(--h);--hw:calc(var(--h)*2/3);position:relative;height:calc(var(--h)*1.25 + 30px);min-height:120px}
+.binder .bpool .deck7>.card{--hw:calc(var(--h)*2/3);--hh:var(--h)}
+.deck7>.card{position:absolute;left:50%;bottom:8%;margin:0;transform-origin:50% 320%;
+ transform:translateX(-50%) rotate(calc(var(--o)*var(--step))) scale(calc(1 - var(--ao)*.04));
+ z-index:calc(10 - var(--ao));filter:brightness(.8);transition:transform .25s,filter .25s,box-shadow .25s;box-shadow:0 8px 16px rgba(0,0,0,.65),0 0 0 2px #2A3C9E}
+.deck7>.card.is-focus{transform:translateX(-50%) translateY(-30px) scale(1.12);z-index:20;filter:none;box-shadow:0 0 0 5px #3ff0ff,0 0 24px #3ff0ff}
+.deck7hit{position:relative;z-index:30;display:flex;justify-content:center;gap:0;margin-top:4px}
+.deck7hit button{min-width:44px;min-height:44px;flex:0 0 44px;background:transparent;border:0;border-bottom:3px solid rgba(63,240,255,.25);cursor:pointer;padding:0}
+.deck7hit button.is-focus{border-bottom-color:#3ff0ff}
+@media (max-width:600px){.deck7{--h:min(21vh,30vw);--step:9deg}.deck7>.card{transform-origin:50% 240%}}
+.binder .bpool:empty::before{content:"特殊を7枚、頁へ";display:block;text-align:center;padding:40px 0;color:rgba(63,240,255,.6);font:700 14px serif;letter-spacing:.2em}
 @media (max-width:600px){.binder{aspect-ratio:auto;width:100%;background:url(assets/ui/binder/binder-bg-page-portrait-from-spread-1080x1920.jpg) center/cover,var(--pr-bg);padding:8px 8px 8px calc(48px*.6)}
 .binder .bpage,.binder .bright{position:static;margin-bottom:8px}
 .binder .bspine{display:block;position:absolute;left:0;top:0;bottom:0;width:calc(48px*.6);height:auto;background:url(assets/ui/binder/binder-spine-alpha@2x.png) center/100% 100%}
@@ -222,7 +228,7 @@ button.card.pickable{cursor:pointer}
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
 <div class="build" id="build"><img class="klogo" src="assets/logo/pain-reflection-wide-sub-1280x320.png" alt="Pain Reflection"><div class="lore1">痛みは消えない。返す側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。相手の手が刺さるたび、こちらの傷が熱を持つ。痛みは嘘をつかない。ただ、跳ね返すまで消えない。勝つのは強い手ではない。受けた傷を、正確に返した側だ。一瞬のズレが、すべてを決める。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
-<div class="binder"><div class="bpage bleft"><div class="bhead"><img src="assets/ui/binder/binder-head-tokushu@2x.png" alt="特殊"></div><div class="bgrid" id="bCands"></div></div><div class="bspine"></div><div class="bpage bright"><div class="bhead"><img src="assets/ui/binder/binder-head-kouchiku@2x.png" alt="構築"> <span class="bcount"><span id="bN">0</span>/7</span></div><div class="bpool" id="bPool"></div><div class="bnote">頁のカードをタップで外す</div></div></div>
+<div class="binder"><div class="bpage bleft"><div class="bhead"><img src="assets/ui/binder/binder-head-tokushu@2x.png" alt="特殊"></div><div class="bgrid" id="bCands"></div></div><div class="bspine"></div><div class="bpage bright"><div class="bhead"><img src="assets/ui/binder/binder-head-kouchiku@2x.png" alt="構築"> <span class="bcount"><span id="bN">0</span>/7</span></div><div class="bpool" id="bPool"></div><div class="bnote">扇をタップ／スワイプで選び、光った札をもう一度タップで外す</div></div></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
 <div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br><span class="fl">痛みは消えない。返す側が勝つ。</span>対AI。ライフ5・最大5ラウンド。<br>「全カード交換」: 手札の特殊を全部山札に戻し（消失しない）3枚引き直す。あなた・AIとも試合中1回、手札選択前のみ。特殊カード「交換」とは別。<br>
@@ -603,7 +609,7 @@ button.card.pickable{cursor:pointer}
   }
 
   // ---- デッキ構築 ----
-  let bp = [];
+  let bp = [], bFocus = -1;
   function renderBuild() {
     const cd = $('bCands'); cd.innerHTML = '';
     CARD_DEFS.forEach(d => {
@@ -616,7 +622,22 @@ button.card.pickable{cursor:pointer}
       cd.appendChild(slot);
     });
     const pl = $('bPool'); pl.innerHTML = '';
-    bp.forEach((c, i) => pl.appendChild(makeCard(c, { pickable: true, onPick: () => { bp.splice(i, 1); renderBuild(); } })));
+    if (bp.length) {
+      const n = bp.length; if (bFocus >= n) bFocus = n - 1; if (bFocus < 0) bFocus = Math.floor((n - 1) / 2);
+      const fan = document.createElement('div'); fan.className = 'deck7'; fan.style.setProperty('--n', n);
+      const hit = document.createElement('div'); hit.className = 'deck7hit';
+      const tap = i => { if (i === bFocus) { bp.splice(i, 1); bFocus = -1; } else bFocus = i; renderBuild(); };
+      bp.forEach((c, i) => {
+        const o = i - (n - 1) / 2, el = makeCard(c, { pickable: true, onPick: () => tap(i) });
+        el.style.setProperty('--i', i); el.style.setProperty('--o', o); el.style.setProperty('--ao', Math.abs(o));
+        if (i === bFocus) el.classList.add('is-focus'); fan.appendChild(el);
+        const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', (i + 1) + '枚目' + (i === bFocus ? '（もう一度で外す）' : ''));
+        if (i === bFocus) b.className = 'is-focus'; b.addEventListener('click', () => tap(i)); hit.appendChild(b);
+      });
+      let sx = null; fan.addEventListener('pointerdown', e => { sx = e.clientX; });
+      fan.addEventListener('pointerup', e => { if (sx === null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) > 30) { bFocus = Math.max(0, Math.min(n - 1, bFocus + (dx < 0 ? 1 : -1))); renderBuild(); } });
+      pl.append(fan, hit);
+    }
     $('bN').textContent = bp.length;
     $('bStart').disabled = bp.length !== POOL_N;
   }
