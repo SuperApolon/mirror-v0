@@ -193,6 +193,16 @@ button.card.pickable{cursor:pointer}
 .binder .bpage,.binder .bright{position:static;margin-bottom:8px}
 .binder .bspine{display:block;position:absolute;left:0;top:0;bottom:0;width:calc(48px*.6);height:auto;background:url(assets/ui/binder/binder-spine-alpha@2x.png) center/100% 100%}
 .binder .bgrid{grid-template-columns:repeat(3,1fr)}}
+/* ===== 友達対戦 P2P v0 ===== */
+#fr{z-index:14}
+.frbox{background:#141829;border:1px solid rgba(63,240,255,.35);border-radius:14px;padding:18px 20px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:12px;align-items:center}
+.frbox h3{margin:0;font-size:18px;font-weight:900;text-shadow:2px 0 var(--ai),-2px 0 var(--me)}
+.frbox .msg{font-size:13px;color:var(--line);line-height:1.6}
+.frcode{font:900 40px/1 'Noto Sans JP',monospace;letter-spacing:.18em;color:var(--me);background:#0d0f1a;border:2px solid var(--me);border-radius:12px;padding:12px 18px;cursor:pointer}
+.frin{font:900 26px monospace;letter-spacing:.2em;text-transform:uppercase;width:9em;text-align:center;padding:8px;border-radius:10px;border:2px solid var(--me);background:#0d0f1a;color:var(--fg)}
+.frbox .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.toast{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:15;background:#141829;border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:12px;max-width:92vw;text-align:center}
+.toast[hidden],#fr[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -225,7 +235,8 @@ button.card.pickable{cursor:pointer}
 <div class="build" id="build"><img class="klogo" src="assets/logo/pain-reflection-wide-sub-1280x320.png" alt="Pain Reflection"><div class="lore1">痛みは消えない。返す側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。相手の手が刺さるたび、こちらの傷が熱を持つ。痛みは嘘をつかない。ただ、跳ね返すまで消えない。勝つのは強い手ではない。受けた傷を、正確に返した側だ。一瞬のズレが、すべてを決める。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈は各1枚、他は各2枚まで・ちょうど7枚）</div>
 <div class="binder"><div class="bpage bleft"><div class="bhead"><img src="assets/ui/binder/binder-head-tokushu@2x.png" alt="特殊"></div><div class="bgrid" id="bCands"></div></div><div class="bspine"></div><div class="bpage bright"><div class="bhead"><img src="assets/ui/binder/binder-head-kouchiku@2x.png" alt="構築"> <span class="bcount"><span id="bN">0</span>/7</span></div><div class="bpool" id="bPool"></div><div class="bnote">頁のカードをタップで外す</div></div></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
-<button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
+<div class="brow"><button type="button" class="again" id="bStart" disabled>対戦開始</button><button type="button" class="tb" id="bFriend" disabled title="料金なし・招待した友達と1対1">友達と遊ぶ</button></div><div class="sub" id="bInvite" hidden></div></div>
+<div class="ov" id="fr" hidden><div class="frbox" id="frBody"></div></div><div class="toast" id="toast" hidden></div>
 <div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br><span class="fl">痛みは消えない。返す側が勝つ。</span>対AI。ライフ5・最大5ラウンド。<br>「1枚入替」: 山札から1枚引き、手札から1枚選んで山札の底へ戻す（消失しない・手札枚数は維持）。あなた・AIとも試合中1回。特殊カード「交換」とは別。<br>
 毎R: <b>手札の特殊をタップ＝即確定</b>。その特殊を場に出してラウンド確定。場は1枚。<br>
 特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈は各1枚、他は各2枚まで）。開始時にプールからランダム3枚を手札に引く。手札は持ち越し、場で消失した特殊1枚ぶんだけ残り山札から1枚補充（引いた札は山札から除去・二重に出ない）。使った特殊は消失。<br>
@@ -267,26 +278,29 @@ button.card.pickable{cursor:pointer}
     return p;
   }
   // 山札（deck）= 未ドローの特殊。手札に引いた札は山札から除去し、二度と山札に戻さない
+  const rnd = (side) => (side && side.rng ? side.rng() : Math.random());
+  function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   function dealHand(side) {
     const c = side.pool.slice();
-    for (let i = c.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [c[i], c[j]] = [c[j], c[i]]; }
+    for (let i = c.length - 1; i > 0; i--) { const j = (rnd(side) * (i + 1)) | 0; [c[i], c[j]] = [c[j], c[i]]; }
     side.hand = c.slice(0, 3);
     side.deck = c.slice(3);
   }
   function deal() {
     dealHand(S.me);
     dealHand(S.ai);
+    if (S.mode === 'p2p') { S.missIndex = -1; S.missed = null; return; }
     S.missIndex = S.ai.hand.length ? (Math.random() * S.ai.hand.length) | 0 : -1;
     S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
   }
   // 場で消失した特殊1枚ぶんだけ山札から補充（山札から除去）。山札切れなら補充なし
   function refill(side, used) {
-    if (used && side.deck && side.deck.length) side.hand.push(side.deck.splice((Math.random() * side.deck.length) | 0, 1)[0]);
+    if (used && side.deck && side.deck.length) side.hand.push(side.deck.splice((rnd(side) * side.deck.length) | 0, 1)[0]);
   }
   // 1枚入替: 山札から1枚引き → 手札から1枚選んで山札の底へ戻す（消失しない）。各サイド試合中1回
   function drawOne(side) {
     if (!side.deck || !side.deck.length) return false;
-    side.hand.push(side.deck.splice((Math.random() * side.deck.length) | 0, 1)[0]);
+    side.hand.push(side.deck.splice((rnd(side) * side.deck.length) | 0, 1)[0]);
     side.redrawn = true;
     return true;
   }
@@ -298,6 +312,7 @@ button.card.pickable{cursor:pointer}
     S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなたが1枚入替（ドロー）';
     render();
   }
+  const OPP = () => (S && S.mode === 'p2p' ? '相手' : 'AI');
   function label(c) { return c ? c.t : 'なし'; }
 
   // 1ラウンド解決（純関数）。m / a: { sp: 特殊カード or null }
@@ -323,12 +338,12 @@ button.card.pickable{cursor:pointer}
     // 反射: 相手起源の3ダメ・共沈の自分側−2を相手へ返す（1枚ずつしか出せないので相手の守とは同時に起きない）
     const rP = ms === '反射', rQ = as === '反射';
     let reflected = null;
-    if (ms === '共沈') { P.life -= 2; if (!gQ) { if (rQ) { P.life -= 2; reflected = 'AIが共沈を反射'; } else Q.life -= 2; } }
+    if (ms === '共沈') { P.life -= 2; if (!gQ) { if (rQ) { P.life -= 2; reflected = OPP() + 'が共沈を反射'; } else Q.life -= 2; } }
     if (as === '共沈') { Q.life -= 2; if (!gP) { if (rP) { Q.life -= 2; reflected = 'あなたが共沈を反射'; } else P.life -= 2; } }
     // ダメージ: 守=相手起源のダメージをすべて0（自傷は防げない）
     let dP = 0, dQ = 0;
     const hit = (toP, n) => { if (toP) { if (!gP) dP += n; } else { if (!gQ) dQ += n; } };
-    if (ms === '3ダメ') { if (rQ) { dP += 3; reflected = 'AIが3ダメを反射'; } else hit(false, 3); }
+    if (ms === '3ダメ') { if (rQ) { dP += 3; reflected = OPP() + 'が3ダメを反射'; } else hit(false, 3); }
     if (as === '3ダメ') { if (rP) { dQ += 3; reflected = 'あなたが3ダメを反射'; } else hit(true, 3); }
     if (ms === '自傷') dP += 3; // 自傷は守・反射と無関係（跳ね返らない・軽減されない）
     if (as === '自傷') dQ += 3;
@@ -363,11 +378,11 @@ button.card.pickable{cursor:pointer}
     const dm = dead(S.me, S.round), da = dead(S.ai, S.round);
     if (dm && da) return '引き分け';
     if (da) return 'あなたの勝ち';
-    if (dm) return 'AIの勝ち';
-    if (S.me.life !== S.ai.life) return S.me.life > S.ai.life ? 'あなたの勝ち（残ライフ）' : 'AIの勝ち（残ライフ）';
+    if (dm) return OPP() + 'の勝ち';
+    if (S.me.life !== S.ai.life) return S.me.life > S.ai.life ? 'あなたの勝ち（残ライフ）' : OPP() + 'の勝ち（残ライフ）';
     const a = S.me.pool.length, b = S.ai.pool.length;
     if (a === b) return '引き分け';
-    return a > b ? 'あなたの勝ち（残特殊）' : 'AIの勝ち（残特殊）';
+    return a > b ? 'あなたの勝ち（残特殊）' : OPP() + 'の勝ち（残特殊）';
   }
   function finish(extra) {
     S.over = true;
@@ -376,22 +391,26 @@ button.card.pickable{cursor:pointer}
     if (S.missed) S.log += '\n欠落していたAIの札: ' + label(S.missed);
   }
   const PROMPT = ' — 特殊をタップで即確定';
-  function advanceRound() {
+  let advanceRound = function () {
     S.round += 1; // 手札は持ち越し（ドローし直さない）
     S.status = 'ラウンド ' + S.round + PROMPT;
-  }
-  function newGame(myPool) {
+  };
+  function newGame(myPool, pv) {
     setTimeout(() => { const rb = $('redrawBtn'); if (rb && !rb.dataset.b) { rb.dataset.b = 1; rb.addEventListener('click', myRedraw); } });
     busy = false; sel = -1;
     S = {
       round: 1, over: false,
       me: { life: 5, pool: myPool.map(c => ({ ...c })), hand: [], undyingUntil: 0 },
-      ai: { life: 5, pool: randomPool(), hand: [], undyingUntil: 0 },
+      ai: { life: 5, pool: pv ? pv.oppPool.map(t => ({ t })) : randomPool(), hand: [], undyingUntil: 0 },
+      mode: pv ? 'p2p' : 'ai', picks: {}, syncs: {}, lifeAt: {},
       last: null, res: null, hist: [], missIndex: -1, missed: null, log: '',
       status: 'ラウンド 1' + PROMPT,
     };
+    if (pv) { const h = mulberry32(pv.seed ^ 0x51ed), g = mulberry32(pv.seed ^ 0x2c1b); S.me.rng = pv.host ? h : g; S.ai.rng = pv.host ? g : h; }
+    else if (P.conn || P.peer) { if (!P.host || P.conn) p2pLeave(); }
     deal();
-    $('build').hidden = true;
+    $('build').hidden = true; $('fr').hidden = true;
+    document.querySelector('.ai .who').textContent = OPP();
     render();
   }
   const pairText = (p) => p.sp ? p.sp.t : '—';
@@ -400,6 +419,8 @@ button.card.pickable{cursor:pointer}
   function play(spIdx) {
     if (!S || S.over || busy) return;
     if (!(spIdx >= 0 && spIdx < S.me.hand.length)) return;
+    if (S.me.discarding) return;
+    if (S.mode === 'p2p') return p2pPlay(spIdx);
     sel = spIdx;
     busy = true;
     try {
@@ -411,10 +432,15 @@ button.card.pickable{cursor:pointer}
         S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
         S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': AIが1枚入替';
       }
-      const ap = aiPick();
+      applyRound(msp, aiPick());
+    } catch (e) { busy = false; throw e; }
+  }
+  // ラウンド適用（対AI・友達対戦で共有）
+  function applyRound(msp, ap) {
+    {
       const o = sim({ round: S.round, me: S.me, ai: S.ai }, { sp: msp }, ap);
       // 使った特殊は消失
-      if (msp) { S.me.hand.splice(sel, 1); S.me.pool.splice(S.me.pool.indexOf(msp), 1); }
+      if (msp) { S.me.hand.splice(S.me.hand.indexOf(msp), 1); S.me.pool.splice(S.me.pool.indexOf(msp), 1); }
       if (ap.sp) {
         const ai = S.ai.hand.indexOf(ap.sp);
         S.ai.hand.splice(ai, 1);
@@ -432,18 +458,22 @@ button.card.pickable{cursor:pointer}
       S.res = [o.dmgMe, o.dmgAi];
       S.hist.push({ r: S.round, mp, ap, dmgMe: o.dmgMe, dmgAi: o.dmgAi });
       const sealedNote = '';
-      S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなた ' + pairText(mp) + ' vs AI ' + pairText(ap) + sealedNote +
-        ' → ' + (o.swapped ? 'ライフ交換 → ' : '') + (o.reflected ? o.reflected + ' → ' : '') + 'あなた ' + sg(-o.dmgMe) + ' / AI ' + sg(-o.dmgAi) + '（ライフ ' + S.me.life + ' / ' + S.ai.life + '）';
+      S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなた ' + pairText(mp) + ' vs ' + OPP() + ' ' + pairText(ap) + sealedNote +
+        ' → ' + (o.swapped ? 'ライフ交換 → ' : '') + (o.reflected ? o.reflected + ' → ' : '') + 'あなた ' + sg(-o.dmgMe) + ' / ' + OPP() + ' ' + sg(-o.dmgAi) + '（ライフ ' + S.me.life + ' / ' + S.ai.life + '）';
       const lifeOver = dead(S.me, S.round) || dead(S.ai, S.round);
       const lastRound = S.round >= 5;
       S.status = 'ラウンド ' + S.round + ' 結果: ' + resText(S.res) + (lifeOver || lastRound ? '' : ' — 次ラウンドへ…');
       sel = -1;
+      if (S.mode === 'p2p') { S.lifeAt[S.round] = [S.me.life, S.ai.life]; p2pSend({ type: 'sync_state', r: S.round, me: S.me.life, opp: S.ai.life }); p2pCheckSync(S.round); }
       render();
+      const g = S;
       setTimeout(() => {
+        if (S !== g) return;
         if (lifeOver || lastRound) finish(); else advanceRound();
         sel = -1; busy = false; render();
+        if (S.mode === 'p2p' && S.over) p2pSend({ type: 'bye', reason: 'over' });
       }, AUTO_NEXT_MS);
-    } catch (e) { busy = false; throw e; }
+    }
   }
 
   const ART = {
@@ -533,7 +563,7 @@ button.card.pickable{cursor:pointer}
     const aiHand = $('aiHand');
     aiHand.innerHTML = '';
     S.ai.hand.forEach((c, i) => {
-      const hide = !S.over && i === S.missIndex;
+      const hide = !S.over && (i === S.missIndex || S.mode === 'p2p');
       aiHand.appendChild(makeCard(hide ? null : c, { hidden: hide }));
     });
 
@@ -565,20 +595,21 @@ button.card.pickable{cursor:pointer}
         onPick: () => {
           if (busy || S.over) return;
           if (S.me.discarding) { discardTo(S.me, i); S.me.discarding = false; sel = -1;
+            if (S.mode === 'p2p') p2pSend({ type: 'mulligan', r: S.round, i });
             S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなたが1枚を山札の底へ'; render(); return; }
           play(i); // 押したら即場へ出してラウンド確定
         },
       }));
     });
     { const rb = $('redrawBtn'); rb.disabled = !canPick || S.me.redrawn || !(S.me.deck && S.me.deck.length); rb.textContent = S.me.discarding ? '捨てる1枚を選択' : S.me.redrawn ? '1枚入替（済）' : '1枚入替'; }
-    $('hint').textContent = S.over ? '' : busy ? '結果表示中…' : S.me.discarding ? '山札の底へ戻す1枚をタップ' : '特殊をタップ＝出して確定';
+    $('hint').textContent = S.over ? '' : busy ? (S.mode === 'p2p' && S.picks.me != null ? '相手の選択待ち…' : '結果表示中…') : S.me.discarding ? '山札の底へ戻す1枚をタップ' : '特殊をタップ＝出して確定';
 
     const ov = $('over');
     if (S.over) {
       const r = endReason();
       $('overT').textContent = r;
-      $('overT').className = r.startsWith('あなた') ? 'w' : r.startsWith('AI') ? 'l' : '';
-      $('overS').textContent = S.missed ? '欠落していたAIの札: ' + label(S.missed) : '';
+      $('overT').className = r.startsWith('あなた') ? 'w' : r.startsWith(OPP()) ? 'l' : '';
+      $('overS').textContent = S.missed ? '欠落していたAIの札: ' + label(S.missed) : S.mode === 'p2p' ? '友達対戦 終了（部屋は解散）' : '';
       ov.hidden = false;
     } else ov.hidden = true;
   }
@@ -605,8 +636,10 @@ button.card.pickable{cursor:pointer}
     }
     $('bN').textContent = bp.length;
     $('bStart').disabled = bp.length !== POOL_N;
+    $('bFriend').disabled = bp.length !== POOL_N;
   }
   function openBuild() {
+    if (S && S.mode === 'p2p') p2pLeave();
     busy = false;
     if (S) S.over = false;
     $('over').hidden = true;
@@ -621,6 +654,194 @@ button.card.pickable{cursor:pointer}
   $('sheetClose').addEventListener('click', () => { $('sheet').hidden = true; });
   $('rulesBtn').addEventListener('click', () => { $('rules').hidden = !$('rules').hidden; });
   $('rules').addEventListener('click', () => { $('rules').hidden = true; });
+  // ===== 友達対戦 P2P v0（PeerJS公開ブローカー＋WebRTC DataChannel。料金なし・TURNなし・再接続なし）=====
+  // playMode: S.mode = 'ai'（デフォルト・本線） | 'p2p'
+  // プロトコル: hello{v} / deck_lock{pool} / start{seed}(ホスト→ゲスト) / play{r,i,t} / mulligan{r,i} / sync_state{r,me,opp} / bye{reason}
+  const P2P_VER = 'pr-p2p-v0-1';
+  const PEERJS_SRC = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
+  const ID_PREFIX = 'painreflection-v0-';
+  const CODE_CH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  const P = { peer: null, conn: null, host: false, code: '', oppPool: null, seed: 0, accepted: false, started: false, ttl: 0 };
+  const esc = (t) => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const roomParam = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+  function loadPeerJS() {
+    if (window.Peer) return Promise.resolve();
+    return new Promise((ok, ng) => { const s = document.createElement('script'); s.src = PEERJS_SRC; s.onload = ok; s.onerror = () => ng(new Error('PeerJSを読み込めませんでした')); document.head.appendChild(s); });
+  }
+  const newCode = () => Array.from({ length: 6 }, () => CODE_CH[(Math.random() * CODE_CH.length) | 0]).join('');
+  const shareUrl = (c) => location.origin + location.pathname + '?room=' + c;
+  function toast(t, ms) { const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => { el.hidden = true; }, ms || 4000); }
+  function frShow(html, bind) { $('frBody').innerHTML = html; $('fr').hidden = false; if (bind) bind(); }
+  const frHide = () => { $('fr').hidden = true; };
+  async function copy(t, okMsg) { try { await navigator.clipboard.writeText(t); toast(okMsg || 'コピーしました', 1600); } catch (e) { prompt('コピーしてください', t); } }
+  function p2pSend(m) { try { if (P.conn && P.conn.open) P.conn.send(m); } catch (e) {} }
+  function p2pLeave() {
+    clearTimeout(P.ttl);
+    if (P.conn) { p2pSend({ type: 'bye', reason: 'leave' }); const c = P.conn; P.conn = null; setTimeout(() => { try { c.close(); } catch (e) {} }, 100); }
+    if (P.peer) { const pe = P.peer; P.peer = null; setTimeout(() => { try { pe.destroy(); } catch (e) {} }, 150); }
+    Object.assign(P, { host: false, code: '', oppPool: null, seed: 0, accepted: false, started: false });
+  }
+  // 失敗／切断: 必ず正面に「対AIで続ける」
+  function p2pFail(msg) {
+    const wasStarted = P.started;
+    p2pLeave();
+    if (S && S.mode === 'p2p' && !S.over) { S.over = true; S.status = '切断'; busy = false; }
+    frShow('<h3>' + (wasStarted ? '接続が切れました' : 'つながりませんでした') + '</h3><div class="msg">' + esc(msg) + '<br>（友達対戦 v0 は再接続なし・部屋は解散）</div>' +
+      '<button type="button" class="again" id="frAi">対AIで続ける</button><div class="row"><button type="button" class="tb" id="frRetry">友達と遊ぶ をやり直す</button></div>',
+      () => { $('frAi').onclick = () => { frHide(); newGame(bp); }; $('frRetry').onclick = () => { frHide(); $('over').hidden = true; $('build').hidden = false; renderBuild(); openFriend(); }; });
+  }
+  function validPool(pool) {
+    if (!Array.isArray(pool) || pool.length !== POOL_N) return false;
+    const n = {};
+    for (const t of pool) { if (!LIMIT2[t]) return false; n[t] = (n[t] || 0) + 1; if (n[t] > LIMIT2[t]) return false; }
+    return true;
+  }
+  function openFriend() {
+    if (bp.length !== POOL_N) return;
+    frShow('<h3>友達と遊ぶ</h3><div class="msg">料金なし・招待した友達と1対1。<br>ルールは対AIと同じです。</div>' +
+      '<button type="button" class="again" id="frHost">部屋をつくる</button>' +
+      '<div class="msg">または コードで参加</div><input class="frin" id="frCode" maxlength="6" autocomplete="off" placeholder="ABC123" value="' + esc(roomParam) + '">' +
+      '<button type="button" class="tb" id="frJoin">参加する</button><button type="button" class="tb" id="frBack">戻る</button>',
+      () => { $('frHost').onclick = () => hostRoom(false); $('frJoin').onclick = () => joinRoom($('frCode').value); $('frBack').onclick = frHide;
+        $('frCode').onkeydown = (e) => { if (e.key === 'Enter') joinRoom($('frCode').value); }; });
+  }
+  function waitScreen() {
+    const url = shareUrl(P.code);
+    frShow('<h3>相手を待っています</h3><div class="msg">このコードを伝える（タップでコピー）</div><button type="button" class="frcode" id="frC">' + P.code + '</button>' +
+      '<button type="button" class="tb" id="frL">このリンクを送る</button>' +
+      '<div class="msg">相手が来るまで対AIでも遊べます。<br>（部屋は開いたまま・来たらお知らせ。30分で閉じます）</div>' +
+      '<button type="button" class="again" id="frAi">対AIで続ける</button><button type="button" class="tb" id="frClose">部屋を閉じる</button>',
+      () => {
+        $('frC').onclick = () => copy(P.code, 'コードをコピーしました');
+        $('frL').onclick = () => { if (navigator.share) navigator.share({ title: 'Pain Reflection 友達対戦', text: 'コード ' + P.code, url }).catch(() => copy(url, 'リンクをコピーしました')); else copy(url, 'リンクをコピーしました'); };
+        $('frAi').onclick = () => { frHide(); newGame(bp); };
+        $('frClose').onclick = () => { p2pLeave(); frHide(); };
+      });
+  }
+  async function hostRoom(retry) {
+    frShow('<h3>部屋を準備中…</h3><div class="msg">接続サーバに登録しています</div><button type="button" class="again" id="frAi">対AIで続ける</button>', () => { $('frAi').onclick = () => { p2pLeave(); frHide(); newGame(bp); }; });
+    try { await loadPeerJS(); } catch (e) { return p2pFail(e.message); }
+    p2pLeave();
+    P.host = true; P.code = newCode();
+    const peer = new window.Peer(ID_PREFIX + P.code); P.peer = peer;
+    peer.on('open', () => { if (P.peer !== peer) return; waitScreen(); P.ttl = setTimeout(() => { if (!P.conn) { p2pLeave(); toast('友達対戦の部屋を閉じました（30分）'); if ($('fr').hidden === false) frHide(); } }, 30 * 60 * 1000); });
+    peer.on('connection', (c) => {
+      if (P.peer !== peer) return;
+      if (P.conn) { c.on('open', () => { c.send({ type: 'bye', reason: 'full' }); setTimeout(() => c.close(), 200); }); return; } // 定員2
+      bindConn(c);
+    });
+    peer.on('error', (e) => { if (P.peer !== peer) return; if (e.type === 'unavailable-id' && !retry) return hostRoom(true); p2pFail(errText(e)); });
+    peer.on('disconnected', () => { if (P.peer === peer && !P.conn) { try { peer.reconnect(); } catch (e) {} } });
+  }
+  async function joinRoom(code) {
+    code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (code.length !== 6) { toast('6文字のコードを入れてください', 2000); return; }
+    frShow('<h3>接続中…</h3><div class="msg">部屋 ' + esc(code) + ' に参加しています</div><button type="button" class="again" id="frAi">対AIで続ける</button>', () => { $('frAi').onclick = () => { p2pLeave(); frHide(); newGame(bp); }; });
+    try { await loadPeerJS(); } catch (e) { return p2pFail(e.message); }
+    p2pLeave();
+    P.host = false; P.code = code;
+    const peer = new window.Peer(); P.peer = peer;
+    peer.on('open', () => { if (P.peer !== peer) return; bindConn(peer.connect(ID_PREFIX + code, { reliable: true })); });
+    peer.on('error', (e) => { if (P.peer === peer) p2pFail(errText(e)); });
+    const t0 = setTimeout(() => { if (P.peer === peer && !(P.conn && P.conn.open)) p2pFail('時間内に相手とつながりませんでした（ネットワーク環境によっては繋がりません）。'); }, 20000);
+    peer.on('close', () => clearTimeout(t0));
+  }
+  function errText(e) {
+    const t = e && e.type;
+    if (t === 'peer-unavailable') return 'その部屋が見つかりません。コードを確認するか、相手に部屋を作り直してもらってください。';
+    if (t === 'network' || t === 'server-error' || t === 'socket-error' || t === 'socket-closed') return '接続サーバにつながりません。少し待ってやり直してください。';
+    if (t === 'browser-incompatible') return 'このブラウザは友達対戦に対応していません。';
+    return '接続エラー（' + (t || 'unknown') + '）';
+  }
+  function bindConn(c) {
+    P.conn = c;
+    c.on('open', () => {
+      if (P.conn !== c) return;
+      clearTimeout(P.ttl);
+      c.send({ type: 'hello', v: P2P_VER });
+      c.send({ type: 'deck_lock', pool: bp.map(x => x.t) }); // 構築ロック: 送ったプールは試合中変更不可
+      P.myPool = bp.map(x => ({ ...x }));
+      if (P.host) {
+        if (S && S.mode === 'ai' && !S.over && $('build').hidden) {
+          frShow('<h3>友達が来ました</h3><div class="msg">いまの対AI戦をやめて友達対戦を始めますか？</div><button type="button" class="again" id="frGo">友達対戦を始める</button><button type="button" class="tb" id="frNo">断って対AIを続ける</button>',
+            () => { $('frGo').onclick = () => { P.accepted = true; frHide(); hostMaybeStart(); }; $('frNo').onclick = () => { p2pLeave(); frHide(); }; });
+        } else { P.accepted = true; frShow('<h3>友達が来ました</h3><div class="msg">準備中…</div>'); hostMaybeStart(); }
+      } else frShow('<h3>つながりました</h3><div class="msg">ホストの開始を待っています…<br>（ホストが対AI中なら少しかかります）</div><button type="button" class="again" id="frAi">対AIで続ける</button>', () => { $('frAi').onclick = () => { p2pLeave(); frHide(); newGame(bp); }; });
+    });
+    c.on('data', (m) => { if (P.conn === c) onMsg(m); });
+    c.on('close', () => { if (P.conn !== c) return; if (S && S.mode === 'p2p' && S.over) { P.conn = null; return; } p2pFail('相手との接続が切れました。'); });
+    c.on('error', () => { if (P.conn === c) p2pFail('相手との通信でエラーが起きました。'); });
+  }
+  function hostMaybeStart() {
+    if (!P.host || P.started || !P.accepted || !P.oppPool || !P.helloOk) return;
+    P.seed = (Math.random() * 0xffffffff) >>> 0;
+    p2pSend({ type: 'start', seed: P.seed });
+    beginP2P();
+  }
+  function beginP2P() {
+    P.started = true;
+    $('over').hidden = true;
+    newGame(P.myPool, { oppPool: P.oppPool, seed: P.seed, host: P.host });
+    toast('友達対戦: お互いを信頼する前提です（不正防止はありません）', 4500); // チート注記は開始時の一文のみ
+  }
+  function onMsg(m) {
+    if (!m || typeof m !== 'object') return;
+    switch (m.type) {
+      case 'hello': if (m.v !== P2P_VER) return p2pFail('相手とバージョンが違います。両方ページを再読み込みしてください。'); P.helloOk = true; hostMaybeStart(); return;
+      case 'deck_lock': if (P.oppPool) return; if (!validPool(m.pool)) return p2pFail('相手の構築が不正でした。'); P.oppPool = m.pool.slice(); hostMaybeStart(); return;
+      case 'start': if (P.host || P.started || !P.oppPool || !P.helloOk) return; P.seed = m.seed >>> 0; beginP2P(); return;
+      case 'bye':
+        if (m.reason === 'full') return p2pFail('その部屋は満室です。');
+        if (S && S.mode === 'p2p' && S.over) return;
+        return p2pFail('相手が退出しました。');
+      case 'mulligan': {
+        if (!S || S.mode !== 'p2p' || S.over) return;
+        const a = S.ai;
+        const okR = (m.r === S.round && !S.picks.opp && !S.lifeAt[S.round]) || (m.r === S.round + 1 && S.lifeAt[S.round]);
+        if (!okR || a.redrawn || !(a.deck && a.deck.length)) return p2pFail('相手の操作が不正でした（1枚入替）。');
+        drawOne(a);
+        if (!(m.i >= 0 && m.i < a.hand.length)) return p2pFail('相手の操作が不正でした（1枚入替）。');
+        discardTo(a, m.i);
+        S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': 相手が1枚入替';
+        if (!busy) render();
+        return;
+      }
+      case 'play':
+        if (!S || S.mode !== 'p2p' || S.over) return;
+        if (m.r === S.round && !S.picks.opp && !S.lifeAt[S.round]) { S.picks.opp = m; tryResolve(); return; }
+        if (m.r === S.round + 1 && S.lifeAt[S.round] && !S.nextOpp) { S.nextOpp = m; return; } // 結果表示中に届いた次Rの手は保留
+        return p2pFail('相手の操作が不正でした（手番）。');
+      case 'sync_state': if (S && S.mode === 'p2p') { S.syncs[m.r] = m; p2pCheckSync(m.r); } return;
+    }
+  }
+  function p2pCheckSync(r) {
+    const t = S.syncs[r], mine = S.lifeAt[r];
+    if (!t || !mine) return;
+    if (t.me !== mine[1] || t.opp !== mine[0]) p2pFail('対戦状態がずれました（R' + r + '）。部屋を解散します。');
+  }
+  function p2pPlay(i) {
+    if (S.picks.me != null) return;
+    const c = S.me.hand[i];
+    S.picks.me = i; busy = true;
+    p2pSend({ type: 'play', r: S.round, i, t: c.t });
+    render(); tryResolve();
+  }
+  function tryResolve() {
+    if (S.picks.me == null || !S.picks.opp) return;
+    const o = S.picks.opp, a = S.ai;
+    if (!(o.i >= 0 && o.i < a.hand.length) || a.hand[o.i].t !== o.t) return p2pFail('相手が手札に無いカードを出しました。'); // 合法手検証
+    const msp = S.me.hand[S.picks.me], asp = a.hand[o.i];
+    S.picks = {};
+    busy = true;
+    applyRound(msp, { sp: asp });
+  }
+  // 次Rへ進んだら保留中の相手の手を反映
+  const _adv = advanceRound;
+  advanceRound = function () { _adv(); if (S.mode === 'p2p' && S.nextOpp) { const m = S.nextOpp; S.nextOpp = null; S.picks.opp = m; } };
+  $('bFriend').addEventListener('click', openFriend);
+  window.addEventListener('pagehide', () => { if (P.conn) p2pSend({ type: 'bye', reason: 'leave' }); });
+  if (roomParam) { const iv = $('bInvite'); iv.hidden = false; iv.textContent = '招待コード ' + roomParam + ' を受け取りました。7枚そろえたら「友達と遊ぶ」で参加できます。'; }
+
   openBuild();
 })();
 </script>
