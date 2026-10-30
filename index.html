@@ -144,13 +144,13 @@ button.card.pickable{cursor:pointer}
 </div>
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
-<div class="build" id="build"><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・各1枚まで・ちょうど10枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
+<div class="build" id="build"><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・各2枚まで・ちょうど10枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
 <div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/10</div><div class="bpool" id="bPool"></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム10）</button></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
 <div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。<br>
 毎R: <b>属性ボタン（天使／人間／機械）から必ず1つ</b>＋<b>特殊手札から0〜1枚</b>（任意）を同時に出す。属性は通常コマンドで毎R使え、消失しない。<br>
-特殊: 試合前に特殊だけでプール10枚を構築（各1枚まで）。毎R残プールからランダム3枚が手札。使った特殊は消失（封印で無効でも消費）。<br>
+特殊: 試合前に特殊だけでプール10枚を構築（各2枚まで）。毎R残プールからランダム3枚が手札。使った特殊は消失（封印で無効でも消費）。<br>
 三すくみ: 機械＞天使＞人間＞機械。勝った側が相手に1ダメ。同種はあいこ。<br>
 守: 自分が受ける属性ダメ・3ダメ・反射ダメを0（自傷は防げない）。<br>交換: 互いのライフを入れ替え。<br>反射: 属性で負けたとき、その1ダメを勝ち側へ跳ね返す。<br>3ダメ: 相手に3ダメ（反射されない・守でブロック）。<br>不死: 出したRとその次のR（計2ターン）、ライフ0以下でも継続。期間終了時に0以下なら敗北。<br>自傷: 自分に3ダメ。<br>反転: 自分のライフの符号を反転（保護外でマイナスなら敗北）。<br>共沈: お互いのライフ−2。<br>零化: 自分のライフを0に。<br>贈与: 相手のライフ＋2（上限5）。<br>鎖: 出したRとその次のR、<b>相手の特殊効果を無効</b>（札は出て消費される。属性は対象外。既に発動中の不死保護は消えない）。<br>
 ※0以下は不死保護中なら継続、保護外なら敗北。ライフはマイナス表示あり。<br>
@@ -170,12 +170,12 @@ button.card.pickable{cursor:pointer}
   const ATTRS = ['天使', '人間', '機械'];
   const SPECIALS = ['守', '交換', '反射', '3ダメ', '不死', '自傷', '反転', '共沈', '零化', '贈与', '鎖'];
   const CANDS = SPECIALS.map(t => ({ t }));
-  const LIMIT1 = Object.fromEntries(SPECIALS.map(t => [t, 1]));
-  const canAdd = (pool, t) => !LIMIT1[t] || pool.filter(c => c.t === t).length < LIMIT1[t];
+  const LIMIT2 = Object.fromEntries(SPECIALS.map(t => [t, 2])); // 全特殊 各2枚まで
+  const canAdd = (pool, t) => !LIMIT2[t] || pool.filter(c => c.t === t).length < LIMIT2[t];
   function randomPool() {
-    const c = CANDS.map(x => ({ ...x }));
-    for (let i = c.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [c[i], c[j]] = [c[j], c[i]]; }
-    return c.slice(0, POOL_N);
+    const p = [];
+    while (p.length < POOL_N) { const c = CANDS[(Math.random() * CANDS.length) | 0]; if (canAdd(p, c.t)) p.push({ ...c }); }
+    return p;
   }
   function dealHand(pool) {
     const c = pool.slice();
