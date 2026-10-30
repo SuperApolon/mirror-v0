@@ -229,7 +229,7 @@ button.card.pickable{cursor:pointer}
 <div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br><span class="fl">痛みは消えない。返す側が勝つ。</span>対AI。ライフ5・最大5ラウンド。<br>「1枚入替」: 山札から1枚引き、手札から1枚選んで山札の底へ戻す（消失しない・手札枚数は維持）。あなた・AIとも試合中1回。特殊カード「交換」とは別。<br>
 毎R: <b>手札の特殊をタップ＝即確定</b>。その特殊を場に出してラウンド確定。場は1枚。<br>
 特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈は各1枚、他は各2枚まで）。開始時にプールからランダム3枚を手札に引く。手札は持ち越し、場で消失した特殊1枚ぶんだけ残り山札から1枚補充（引いた札は山札から除去・二重に出ない）。使った特殊は消失。<br>
-守: 相手起源のダメージ（3ダメ・共沈）と相手のカード効果（交換・贈与など）をすべて無効（自傷は防げない）。<br>交換: 互いのライフを入れ替え。<br>反射: 跳ね返す痛みの構え（現行ルールでは跳ね返す対象ダメージなし）。<br>3ダメ: 相手に3ダメ（反射されない・守でブロック）。<br>不死: 出したRから2ターン後のRまで（例: R1で出す→R3終了まで）ライフ0以下でも敗北しない。反転でマイナスになっても生存、交換で0以下を受け取っても生存。期間終了時に0以下なら敗北。<br>自傷: 自分に3ダメ。<br>反転: 自分のライフの符号を反転（不死中はマイナスでも生存、保護外でマイナスなら敗北）。<br>共沈: お互いのライフ−2。<br>零化: 自分のライフを0に。<br>贈与: 相手のライフ＋2（上限5）。<br>
+守: 相手起源のダメージ（3ダメ・共沈）と相手のカード効果（交換・贈与など）をすべて無効（自傷は防げない）。<br>交換: 互いのライフを入れ替え。<br>反射: 相手の3ダメを受けずに相手へ返す。相手の共沈は自分側の−2を相手へ返す（相手は計−4）。自傷・カード効果は返さない。<br>3ダメ: 相手に3ダメ（守でブロック・反射で跳ね返る）。<br>不死: 出したRから2ターン後のRまで（例: R1で出す→R3終了まで）ライフ0以下でも敗北しない。反転でマイナスになっても生存、交換で0以下を受け取っても生存。期間終了時に0以下なら敗北。<br>自傷: 自分に3ダメ。<br>反転: 自分のライフの符号を反転（不死中はマイナスでも生存、保護外でマイナスなら敗北）。<br>共沈: お互いのライフ−2。<br>零化: 自分のライフを0に。<br>贈与: 相手のライフ＋2（上限5）。<br>
 解決順: 不死開始 → 交換 → 反転 → ライフ演算（零化→贈与→共沈）→ 3ダメ・自傷 → 勝敗判定。<br>
 場は両者とも常に1枚（特殊）。結果のあと自動で次ラウンドへ。</div></div>
 <script>
@@ -320,17 +320,20 @@ button.card.pickable{cursor:pointer}
     if (as === '零化') Q.life = 0;
     if (ms === '贈与' && !gQ) Q.life = Math.min(5, Q.life + 2);
     if (as === '贈与' && !gP) P.life = Math.min(5, P.life + 2);
-    if (ms === '共沈') { P.life -= 2; if (!gQ) Q.life -= 2; }
-    if (as === '共沈') { Q.life -= 2; if (!gP) P.life -= 2; }
+    // 反射: 相手起源の3ダメ・共沈の自分側−2を相手へ返す（1枚ずつしか出せないので相手の守とは同時に起きない）
+    const rP = ms === '反射', rQ = as === '反射';
+    let reflected = null;
+    if (ms === '共沈') { P.life -= 2; if (!gQ) { if (rQ) { P.life -= 2; reflected = 'AIが共沈を反射'; } else Q.life -= 2; } }
+    if (as === '共沈') { Q.life -= 2; if (!gP) { if (rP) { Q.life -= 2; reflected = 'あなたが共沈を反射'; } else P.life -= 2; } }
     // ダメージ: 守=相手起源のダメージをすべて0（自傷は防げない）
     let dP = 0, dQ = 0;
     const hit = (toP, n) => { if (toP) { if (!gP) dP += n; } else { if (!gQ) dQ += n; } };
-    if (ms === '3ダメ') hit(false, 3); // 3ダメは反射されない
-    if (as === '3ダメ') hit(true, 3);
+    if (ms === '3ダメ') { if (rQ) { dP += 3; reflected = 'AIが3ダメを反射'; } else hit(false, 3); }
+    if (as === '3ダメ') { if (rP) { dQ += 3; reflected = 'あなたが3ダメを反射'; } else hit(true, 3); }
     if (ms === '自傷') dP += 3; // 自傷は守・反射と無関係（跳ね返らない・軽減されない）
     if (as === '自傷') dQ += 3;
     P.life -= dP; Q.life -= dQ;
-    return { me: P, ai: Q, dmgMe: dP, dmgAi: dQ, swapped, ms, as };
+    return { me: P, ai: Q, dmgMe: dP, dmgAi: dQ, swapped, reflected, ms, as };
   }
 
   function aiPick() {
@@ -430,7 +433,7 @@ button.card.pickable{cursor:pointer}
       S.hist.push({ r: S.round, mp, ap, dmgMe: o.dmgMe, dmgAi: o.dmgAi });
       const sealedNote = '';
       S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなた ' + pairText(mp) + ' vs AI ' + pairText(ap) + sealedNote +
-        ' → ' + (o.swapped ? 'ライフ交換 → ' : '') + 'あなた ' + sg(-o.dmgMe) + ' / AI ' + sg(-o.dmgAi) + '（ライフ ' + S.me.life + ' / ' + S.ai.life + '）';
+        ' → ' + (o.swapped ? 'ライフ交換 → ' : '') + (o.reflected ? o.reflected + ' → ' : '') + 'あなた ' + sg(-o.dmgMe) + ' / AI ' + sg(-o.dmgAi) + '（ライフ ' + S.me.life + ' / ' + S.ai.life + '）';
       const lifeOver = dead(S.me, S.round) || dead(S.ai, S.round);
       const lastRound = S.round >= 5;
       S.status = 'ラウンド ' + S.round + ' 結果: ' + resText(S.res) + (lifeOver || lastRound ? '' : ' — 次ラウンドへ…');
