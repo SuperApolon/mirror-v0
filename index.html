@@ -192,6 +192,11 @@ button.card.pickable{cursor:pointer}
     S.missIndex = S.ai.hand.length ? (Math.random() * S.ai.hand.length) | 0 : -1;
     S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
   }
+  // 使った特殊の直後に、手札に無いプール札から1枚補充（プール切れ時のみ減る）
+  function refill(side) {
+    const rest = side.pool.filter(c => !side.hand.includes(c));
+    while (side.hand.length < 3 && rest.length) side.hand.push(rest.splice((Math.random() * rest.length) | 0, 1)[0]);
+  }
   function label(c) { return c ? c.t : 'なし'; }
 
   // 1ラウンド解決（純関数）。st: {round, me:{life,undyingUntil,sealedUntil}, ai:{...}}
@@ -308,15 +313,19 @@ button.card.pickable{cursor:pointer}
         if (S.missIndex === ai) S.missed = ap.sp; else if (S.missIndex > ai) S.missIndex -= 1;
         S.ai.pool.splice(S.ai.pool.indexOf(ap.sp), 1);
       }
+      refill(S.me); refill(S.ai);
+      const before = [S.me.life, S.ai.life];
       Object.assign(S.me, { life: o.me.life, undyingUntil: o.me.undyingUntil, sealedUntil: o.me.sealedUntil });
       Object.assign(S.ai, { life: o.ai.life, undyingUntil: o.ai.undyingUntil, sealedUntil: o.ai.sealedUntil });
+      // 表示用: 実際のライフ増減（交換・贈与・零化・共沈なども含む）
+      o.dmgMe = before[0] - S.me.life; o.dmgAi = before[1] - S.ai.life;
       const mp = { attr, sp: msp };
       S.last = [mp, ap];
       S.res = [o.dmgMe, o.dmgAi];
       S.hist.push({ r: S.round, mp, ap, dmgMe: o.dmgMe, dmgAi: o.dmgAi });
       const sealedNote = (msp && !o.ms ? '（あなたの特殊は封印）' : '') + (ap.sp && !o.as ? '（AIの特殊は封印）' : '');
       S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなた ' + pairText(mp) + ' vs AI ' + pairText(ap) + sealedNote +
-        ' → ' + (o.swapped ? 'ライフ交換 → ' : '') + 'あなた -' + o.dmgMe + ' / AI -' + o.dmgAi + '（ライフ ' + S.me.life + ' / ' + S.ai.life + '）';
+        ' → ' + (o.swapped ? 'ライフ交換 → ' : '') + 'あなた ' + sg(-o.dmgMe) + ' / AI ' + sg(-o.dmgAi) + '（ライフ ' + S.me.life + ' / ' + S.ai.life + '）';
       const lifeOver = dead(S.me, S.round + 1) || dead(S.ai, S.round + 1);
       const lastRound = S.round >= 5;
       S.status = 'ラウンド ' + S.round + ' 結果: ' + resText(S.res) + (lifeOver || lastRound ? '' : ' — 次ラウンドへ…');
@@ -386,6 +395,7 @@ button.card.pickable{cursor:pointer}
     el.appendChild(v);
   }
 
+  const sg = (n) => (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n);
   function resText(r) {
     if (!r) return '';
     if (r[1] > r[0]) return '勝ち';
@@ -407,7 +417,7 @@ button.card.pickable{cursor:pointer}
     const logHtml = S.hist.map(h => {
       const k = resText([h.dmgMe, h.dmgAi]);
       return '<div class="lr"><b>R' + h.r + '</b><span>' + pairText(h.mp) + ' vs ' + pairText(h.ap) +
-        ' → 自分-' + h.dmgMe + ' / AI-' + h.dmgAi + '</span><em class="' + (k === '勝ち' ? 'w' : k === '負け' ? 'l' : '') + '">' + k + '</em></div>';
+        ' → 自分' + sg(-h.dmgMe) + ' / AI' + sg(-h.dmgAi) + '</span><em class="' + (k === '勝ち' ? 'w' : k === '負け' ? 'l' : '') + '">' + k + '</em></div>';
     }).join('') || '<div class="lr dim">まだ記録なし</div>';
     $('log').innerHTML = logHtml;
     $('sheetLog').innerHTML = logHtml;
