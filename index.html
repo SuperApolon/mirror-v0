@@ -118,6 +118,7 @@ button.card.pickable{cursor:pointer}
 @media (max-height:600px){:root{--hw:72px;--hh:108px;--fw:80px;--fh:120px}}
 @media (min-width:900px) and (max-height:820px){:root{--hw:96px;--hh:144px;--fw:106px;--fh:159px}}
 @media (min-width:900px) and (max-height:680px){:root{--hw:78px;--hh:117px;--fw:86px;--fh:129px}}
+.lore1{color:#3ff0ff;font-size:14px;letter-spacing:.08em;margin:2px 0 6px;text-shadow:0 0 8px #ff5fc8aa}.lore{color:#c9c2e8;font-size:12px;line-height:1.7;opacity:.85;margin-bottom:8px}.abtn small{display:block;font-size:10px;opacity:.8;font-weight:normal}.fl{display:block;color:#ff8fd8;font-size:11px;font-style:italic;opacity:.85}
 </style>
 </head>
 <body>
@@ -147,11 +148,11 @@ button.card.pickable{cursor:pointer}
 </div>
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
-<div class="build" id="build"><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
+<div class="build" id="build"><div style="font-size:20px;font-weight:bold;color:#e8f6ff">ミラー（仮）</div><div class="lore1">鏡は半分しか映さない。穴を読んだ側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。なのに相手の盤だけが、静かに欠けている。欠けた輪郭が、見えない手の体温を漏らす。鏡は嘘をつかない。ただ、半分しか映さない。対称は、最初から破れていた。勝つのは強い手ではない。穴を読んだ側だ。一瞬のズレが、すべてを決める。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
 <div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/7</div><div class="bpool" id="bPool"></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
-<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。<br>「全カード交換」: 手札の特殊を全部山札に戻し（消失しない）3枚引き直す。あなた・AIとも試合中1回、手札選択前のみ。特殊カード「交換」とは別。<br>
+<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br><span class="fl">鏡は半分しか映さない。穴を読んだ側が勝つ。</span>対AI。ライフ5・最大5ラウンド。<br>「全カード交換」: 手札の特殊を全部山札に戻し（消失しない）3枚引き直す。あなた・AIとも試合中1回、手札選択前のみ。特殊カード「交換」とは別。<br>
 毎R: <b>押したら即確定</b>。属性ボタン（天使／人間／機械）＝その属性で確定（特殊なし）。特殊をタップ＝その特殊を場に出して確定（属性なし。相手が属性を出していれば属性ダメ1が直撃し、自傷・3ダメ等と合算）。場は1枚。属性は通常コマンドで毎R使え、消失しない。<br>
 特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで）。開始時にプールからランダム3枚を手札に引く。手札は持ち越し、場で消失した特殊1枚ぶんだけ残り山札から1枚補充（引いた札は山札から除去・二重に出ない）。使った特殊は消失（封印で無効でも消費）。<br>
 三すくみ: 機械＞天使＞人間＞機械。勝った側が相手に1ダメ。同種はあいこ。<br>
@@ -494,7 +495,7 @@ button.card.pickable{cursor:pointer}
     const ab = $('attrBtns'); ab.innerHTML = '';
     for (const t of ATTRS) {
       const b = document.createElement('button');
-      b.type = 'button'; b.className = 'abtn t-' + t; b.textContent = t; b.disabled = !canPick;
+      b.type = 'button'; b.className = 'abtn t-' + t; b.innerHTML = t + '<small>' + ({天使:'光輪の側',人間:'体温の側',機械:'青の律'})[t] + '</small>'; b.disabled = !canPick;
       b.addEventListener('click', () => play(t));
       ab.appendChild(b);
     }

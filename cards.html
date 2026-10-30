@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ミラー（仮）カード効果一覧</title>
-<style>body{margin:0;background:#0d0f1a;color:#f2eefa;font-family:'Noto Sans JP',sans-serif;line-height:1.7;padding:20px}main{max-width:640px;margin:auto}h1{font-size:22px}h2{font-size:16px;color:#3ff0ff;border-bottom:1px solid #334;margin-top:24px}table{width:100%;border-collapse:collapse;font-size:14px}td{border-bottom:1px solid #223;padding:6px 4px;vertical-align:top}td:first-child{white-space:nowrap;font-weight:700;width:7em}a{color:#ff5fc8}.back{display:inline-block;margin:8px 0;padding:6px 14px;border:1px solid #b8c4d6;border-radius:8px;text-decoration:none;color:#f2eefa}</style></head>
+<style>body{margin:0;background:#0d0f1a;color:#f2eefa;font-family:'Noto Sans JP',sans-serif;line-height:1.7;padding:20px}main{max-width:640px;margin:auto}h1{font-size:22px}h2{font-size:16px;color:#3ff0ff;border-bottom:1px solid #334;margin-top:24px}table{width:100%;border-collapse:collapse;font-size:14px}td{border-bottom:1px solid #223;padding:6px 4px;vertical-align:top}td:first-child{white-space:nowrap;font-weight:700;width:7em}a{color:#ff5fc8}.back{display:inline-block;margin:8px 0;padding:6px 14px;border:1px solid #b8c4d6;border-radius:8px;text-decoration:none;color:#f2eefa}.fl{display:block;color:#ff8fd8;font-size:11px;font-style:italic;opacity:.85;margin-top:2px}</style></head>
 <body><main>
 <a class="back" href="./">← ゲームに戻る</a>
-<h1>カード効果一覧</h1>
+<h1>カード効果一覧</h1><p style="color:#3ff0ff">鏡は半分しか映さない。穴を読んだ側が勝つ。</p>
 <h2>属性コマンド（毎R必ず1つ選ぶ）</h2>
 <table>
 <tr><td>天使／人間／機械</td><td>三すくみ: 機械＞天使＞人間＞機械。勝った側が相手に1ダメ。同種はあいこ（双方0）。特殊を出した側は属性なし扱いで、相手が属性を出していれば属性ダメ1が直撃（特殊の効果と合算。例: 自傷＋相手機械＝自分4ダメ）。画面下のボタンで常時使用可。プールに入らず消失しない。</td></tr>
@@ -12,17 +12,17 @@
 <h2>特殊カード（毎R 0〜1枚・任意）</h2>
 <p style="font-size:13px">プールは特殊のみで7枚構築・<b>3ダメ／交換／零化／不死／共沈／鎖は各1枚まで、守／反射／自傷／反転／贈与は各2枚まで</b>。開始時にプールからランダム3枚を手札に引く（引いた札は山札から除去）。手札の特殊は持ち越し、場で消失した特殊1枚ぶんだけ山札から1枚補充（山札切れなら補充なし・同じ札が二重に出ることはない）。使った特殊はプールから消失（鎖で無効化されても消費）。</p>
 <table>
-<tr><td>守 GUARD</td><td>相手起源のあらゆるダメージ（属性・3ダメ・反射・共沈）と相手のカード効果（交換・鎖・贈与など）を無効に（自傷は自分起源なので防げない）。</td></tr>
-<tr><td>交換 SWAP</td><td>互いのライフを入れ替える。</td></tr>
-<tr><td>反射 REFLECT</td><td>属性で負けたとき、その1ダメを勝った側へ跳ね返す。</td></tr>
-<tr><td>3ダメ BLOW</td><td>相手に3ダメ（反射されない・守でブロックされる）。</td></tr>
-<tr><td>不死 UNDYING</td><td>出したRから2ターン後のRまで（R1で出す→R3終了まで）、ライフ0以下でも試合継続。反転でマイナス・交換で0以下を受けても生存。ダメは通常どおり受け、マイナス表示。期間終了時に0以下なら敗北。</td></tr>
-<tr><td>自傷 WOUND</td><td>自分に3ダメ（自分起源のため守でも防げない・反射とは無関係）。</td></tr>
-<tr><td>反転 INVERT</td><td>自分のライフの符号を反転（0は0）。不死中はマイナスでも生存、保護外でマイナスになれば敗北。</td></tr>
-<tr><td>共沈 SINK</td><td>お互いのライフ −2。</td></tr>
-<tr><td>零化 ZERO</td><td>自分のライフを0にする（保護外なら敗北）。</td></tr>
-<tr><td>贈与 GIFT</td><td>相手のライフ ＋2（上限5）。</td></tr>
-<tr><td>鎖 CHAIN</td><td>出したRとその次のR、相手の特殊効果を無効（札は出て消費される）。属性は対象外。既に発動中の不死保護は消えない。</td></tr>
+<tr><td>守 GUARD</td><td>相手起源のあらゆるダメージ（属性・3ダメ・反射・共沈）と相手のカード効果（交換・鎖・贈与など）を無効に（自傷は自分起源なので防げない）。<span class="fl">欠ける前に、こちら側だけを閉じる。</span></td></tr>
+<tr><td>交換 SWAP</td><td>互いのライフを入れ替える。<span class="fl">あなたの真実と、私の影を入れ替える。</span></td></tr>
+<tr><td>反射 REFLECT</td><td>属性で負けたとき、その1ダメを勝った側へ跳ね返す。<span class="fl">投げた刃が、投げた側の輪郭へ戻る。</span></td></tr>
+<tr><td>3ダメ BLOW</td><td>相手に3ダメ（反射されない・守でブロックされる）。<span class="fl">数字が、三発で対称を殴り割る。</span></td></tr>
+<tr><td>不死 UNDYING</td><td>出したRから2ターン後のRまで（R1で出す→R3終了まで）、ライフ0以下でも試合継続。反転でマイナス・交換で0以下を受けても生存。ダメは通常どおり受け、マイナス表示。期間終了時に0以下なら敗北。<span class="fl">消えない側に、残像だけが残る。</span></td></tr>
+<tr><td>自傷 WOUND</td><td>自分に3ダメ（自分起源のため守でも防げない・反射とは無関係）。<span class="fl">自分を削って、穴を深くする。</span></td></tr>
+<tr><td>反転 INVERT</td><td>自分のライフの符号を反転（0は0）。不死中はマイナスでも生存、保護外でマイナスになれば敗北。<span class="fl">表と裏が、同時に真実になる。</span></td></tr>
+<tr><td>共沈 SINK</td><td>お互いのライフ −2。<span class="fl">二人で沈むなら、それは勝ちに近い。</span></td></tr>
+<tr><td>零化 ZERO</td><td>自分のライフを0にする（保護外なら敗北）。<span class="fl">すべてを、欠けの形に戻す。</span></td></tr>
+<tr><td>贈与 GIFT</td><td>相手のライフ ＋2（上限5）。<span class="fl">渡しすぎた光が、相手の余白を埋める。</span></td></tr>
+<tr><td>鎖 CHAIN</td><td>出したRとその次のR、相手の特殊効果を無効（札は出て消費される）。属性は対象外。既に発動中の不死保護は消えない。<span class="fl">つながったまま、動けなくなる美しさ。</span></td></tr>
 </table>
 <h2>場の表示</h2>
 <p>場は両者とも常に1枚。特殊を出したら場には特殊カードのみ（属性なし。相手の属性ダメ1を受ける）。特殊なしなら属性カードが場に出る。</p>
