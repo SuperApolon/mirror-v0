@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ミラー（仮）カード効果一覧</title>
+<style>body{margin:0;background:#0d0f1a;color:#f2eefa;font-family:'Noto Sans JP',sans-serif;line-height:1.7;padding:20px}main{max-width:640px;margin:auto}h1{font-size:22px}h2{font-size:16px;color:#3ff0ff;border-bottom:1px solid #334;margin-top:24px}table{width:100%;border-collapse:collapse;font-size:14px}td{border-bottom:1px solid #223;padding:6px 4px;vertical-align:top}td:first-child{white-space:nowrap;font-weight:700;width:7em}a{color:#ff5fc8}.back{display:inline-block;margin:8px 0;padding:6px 14px;border:1px solid #b8c4d6;border-radius:8px;text-decoration:none;color:#f2eefa}</style></head>
+<body><main>
+<a class="back" href="./">← ゲームに戻る</a>
+<h1>カード効果一覧</h1>
+<h2>属性コマンド（毎R必ず1つ選ぶ）</h2>
+<table>
+<tr><td>天使／人間／機械</td><td>三すくみ: 機械＞天使＞人間＞機械。勝った側が相手に1ダメ。同種はあいこ（双方0）。画面下のボタンで常時使用可。プールに入らず消失しない。</td></tr>
+</table>
+<h2>特殊カード（毎R 0〜1枚・任意）</h2>
+<p style="font-size:13px">プールは特殊のみで10枚構築・<b>各カード2枚まで</b>。毎R残プールからランダム3枚が手札。使った特殊はプールから消失（鎖で無効化されても消費）。</p>
+<table>
+<tr><td>守 GUARD</td><td>自分が受ける属性ダメ・3ダメ・反射ダメを0に（自傷は防げない）。</td></tr>
+<tr><td>交換 SWAP</td><td>互いのライフを入れ替える。</td></tr>
+<tr><td>反射 REFLECT</td><td>属性で負けたとき、その1ダメを勝った側へ跳ね返す。</td></tr>
+<tr><td>3ダメ BLOW</td><td>相手に3ダメ（反射されない・守でブロックされる）。</td></tr>
+<tr><td>不死 UNDYING</td><td>出したRとその次のR（計2ターン）、ライフ0以下でも試合継続。ダメは通常どおり受け、マイナス表示。期間終了時に0以下なら敗北。</td></tr>
+<tr><td>自傷 WOUND</td><td>自分に3ダメ（守・反射とは無関係）。</td></tr>
+<tr><td>反転 INVERT</td><td>自分のライフの符号を反転（0は0）。不死保護外でマイナスになれば敗北。</td></tr>
+<tr><td>共沈 SINK</td><td>お互いのライフ −2。</td></tr>
+<tr><td>零化 ZERO</td><td>自分のライフを0にする（保護外なら敗北）。</td></tr>
+<tr><td>贈与 GIFT</td><td>相手のライフ ＋2（上限5）。</td></tr>
+<tr><td>鎖 CHAIN</td><td>出したRとその次のR、相手の特殊効果を無効（札は出て消費される）。属性は対象外。既に発動中の不死保護は消えない。</td></tr>
+</table>
+<h2>解決順</h2>
+<p>封印（鎖）チェック → 不死開始 → 交換 → 反転 → ライフ演算（零化→贈与→共沈）→ 属性ダメ・3ダメ・自傷 → 勝敗判定</p>
+<h2>勝敗</h2>
+<p>ライフ0以下（不死保護外）で敗北。最大5R、終了時は残ライフ→残特殊数で判定。</p>
+<a class="back" href="./">← ゲームに戻る</a>
+</main></body></html>

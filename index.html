@@ -120,7 +120,7 @@ button.card.pickable{cursor:pointer}
 <div class="app">
  <main class="board">
   <section class="half ai">
-   <div class="bar"><span><span class="who">AI</span><span class="life" id="aiLife"></span><span class="pc">プール <b id="aiPool">10</b></span></span><span class="mobonly">R <b id="round">1</b>/5</span><button type="button" class="tb" id="rulesBtn">ルール</button></div>
+   <div class="bar"><span><span class="who">AI</span><span class="life" id="aiLife"></span><span class="pc">プール <b id="aiPool">10</b></span></span><span class="mobonly">R <b id="round">1</b>/5</span><span><a class="tb" href="cards.html" style="text-decoration:none;margin-right:4px">効果</a><button type="button" class="tb" id="rulesBtn">ルール</button></span></div>
    <div class="zone"><div class="hand" id="aiHand"></div></div>
    <div class="zone fz" id="aiField"></div>
   </section>
@@ -146,7 +146,7 @@ button.card.pickable{cursor:pointer}
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
 <div class="build" id="build"><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・各2枚まで・ちょうど10枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
 <div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/10</div><div class="bpool" id="bPool"></div>
-<div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム10）</button></div>
+<div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム10）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
 <div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。<br>
 毎R: <b>属性ボタン（天使／人間／機械）から必ず1つ</b>＋<b>特殊手札から0〜1枚</b>（任意）を同時に出す。属性は通常コマンドで毎R使え、消失しない。<br>
