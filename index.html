@@ -139,6 +139,23 @@ button.card.pickable{cursor:pointer}
 .abtn .aimg{width:auto;height:min(54px,5.5dvh);max-width:110px}
 .zone.fz{display:flex;align-items:center;justify-content:center;min-height:calc(var(--fh)*.6)}
 @media (max-width:640px){.attrs{flex-direction:column}.abtn .aimg{height:min(40px,4.5dvh)}}
+
+/* ===== カードバインダー（古文書仮スキン）===== */
+.binder{display:flex;width:min(96vw,1180px);max-width:100%;background:#3b2414;border-radius:10px;padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.7),inset 0 0 0 2px #6b4423,inset 0 0 0 5px #2a180c;gap:0}
+.bpage{flex:1;min-width:0;padding:14px 12px;color:#3a2410;background:radial-gradient(ellipse at 30% 20%,#f3e3bf 0,#e6cf9c 55%,#c9a76a 100%);box-shadow:inset 0 0 40px rgba(110,70,20,.55),inset 0 0 6px rgba(60,30,0,.6)}
+.bleft{border-radius:6px 0 0 6px;flex:1.7}.bright{border-radius:0 6px 6px 0;display:flex;flex-direction:column;gap:8px}
+.bspine{width:14px;flex:none;background:linear-gradient(90deg,#8a6a3a,#3a2410 45%,#3a2410 55%,#8a6a3a)}
+.bhead{font-weight:900;font-size:clamp(14px,1.4vw,18px);letter-spacing:.15em;text-align:center;border-bottom:1px double #7a5226;padding-bottom:6px;margin-bottom:10px;font-family:serif}
+.binder .bcount{color:#8a1c12;font-family:serif;margin-left:6px}
+.binder .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:12px 8px;max-width:none;justify-items:center}
+.bslot{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:1px dashed rgba(90,55,20,.45);border-radius:6px;background:rgba(255,245,220,.25);width:100%}
+.bslot.on{border:2px solid #8a1c12;background:rgba(160,40,20,.12)}
+.bslot.full{opacity:.42;filter:grayscale(.7)}
+.bslot .bfl{font-size:10px;font-family:serif;text-align:center;line-height:1.2;min-height:2.4em}
+.bslot .bct{font-size:11px;font-weight:900;font-family:serif}.bslot.on .bct{color:#8a1c12}
+.binder .bpool{border:1px solid rgba(90,55,20,.5);background:rgba(255,245,220,.25);max-width:none;flex:1;align-content:flex-start}
+.bnote{font-size:10px;text-align:center;font-family:serif;opacity:.75}
+@media (max-width:760px){.binder{flex-direction:column}.bspine{width:auto;height:10px;background:linear-gradient(#8a6a3a,#3a2410 50%,#8a6a3a)}.bleft{border-radius:6px 6px 0 0}.bright{border-radius:0 0 6px 6px}.binder .bgrid{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}.binder .bgrid .card{--hw:64px;--hh:96px}}
 </style>
 </head>
 <body>
@@ -169,7 +186,7 @@ button.card.pickable{cursor:pointer}
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
 <div class="build" id="build"><img class="klogo" src="assets/logo/pain-reflection-wide-sub-1280x320.png" alt="Pain Reflection"><div class="lore1">痛みは消えない。返す側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。相手の手が刺さるたび、こちらの傷が熱を持つ。痛みは嘘をつかない。ただ、跳ね返すまで消えない。勝つのは強い手ではない。受けた傷を、正確に返した側だ。一瞬のズレが、すべてを決める。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
-<div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/7</div><div class="bpool" id="bPool"></div>
+<div class="binder"><div class="bpage bleft"><div class="bhead">特殊カード目録</div><div class="bgrid" id="bCands"></div></div><div class="bspine"></div><div class="bpage bright"><div class="bhead">携行の頁 <span class="bcount"><span id="bN">0</span>/7</span></div><div class="bpool" id="bPool"></div><div class="bnote">頁のカードをタップで外す</div></div></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
 <div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br><span class="fl">痛みは消えない。返す側が勝つ。</span>対AI。ライフ5・最大5ラウンド。<br>「全カード交換」: 手札の特殊を全部山札に戻し（消失しない）3枚引き直す。あなた・AIとも試合中1回、手札選択前のみ。特殊カード「交換」とは別。<br>
@@ -192,10 +209,26 @@ button.card.pickable{cursor:pointer}
 
   const POOL_N = 7;
   const ATTRS = ['天使', '人間', '機械'];
-  const SPECIALS = ['守', '交換', '反射', '3ダメ', '不死', '自傷', '反転', '共沈', '零化', '贈与', '鎖'];
+  // ===== カード定義（ここに1行足せばバインダー・構築・AIプールが追従）=====
+  // id: 内部ID / name: 表示名 / key: 特殊効果キー(解決ロジック側の c.t) / limit: 構築上限枚数 / art: 原画パス / flavor: 短文
+  const CARD_DEFS = [
+    { id: 'guard',    name: '守',   key: '守',   limit: 2, art: 'assets/sp/sp-guard.jpg',    flavor: '痛みを受け止める盾。' },
+    { id: 'exchange', name: '交換', key: '交換', limit: 1, art: 'assets/sp/sp-exchange.jpg', flavor: '傷を取り替える。' },
+    { id: 'reflect',  name: '反射', key: '反射', limit: 2, art: 'assets/sp/sp-reflect.jpg',  flavor: '受けた痛みを返す。' },
+    { id: 'dmg3',     name: '3ダメ', key: '3ダメ', limit: 1, art: 'assets/sp/sp-dmg3.jpg',   flavor: '深く刺す一撃。' },
+    { id: 'immortal', name: '不死', key: '不死', limit: 1, art: 'assets/sp/sp-immortal.jpg', flavor: '倒れない夜。' },
+    { id: 'selfharm', name: '自傷', key: '自傷', limit: 2, art: 'assets/sp/sp-selfharm.jpg', flavor: '己を削って刃とする。' },
+    { id: 'reverse',  name: '反転', key: '反転', limit: 2, art: 'assets/sp/sp-reverse.jpg',  flavor: '痛みと癒やしを裏返す。' },
+    { id: 'cosink',   name: '共沈', key: '共沈', limit: 1, art: 'assets/sp/sp-cosink.jpg',   flavor: '共に沈む。' },
+    { id: 'nullify',  name: '零化', key: '零化', limit: 1, art: 'assets/sp/sp-nullify.jpg',  flavor: 'すべてを零に。' },
+    { id: 'gift',     name: '贈与', key: '贈与', limit: 2, art: 'assets/sp/sp-gift.jpg',     flavor: '痛みを贈る。' },
+    { id: 'chain',    name: '鎖',   key: '鎖',   limit: 1, art: 'assets/sp/sp-chain.jpg',    flavor: '手を封じる。' },
+  ];
+  const CARD_BY_KEY = Object.fromEntries(CARD_DEFS.map(d => [d.key, d]));
+  const SPECIALS = CARD_DEFS.map(d => d.key);
   const CANDS = SPECIALS.map(t => ({ t }));
-  const ONE = ['3ダメ', '交換', '零化', '不死', '共沈', '鎖']; // 各1枚まで
-  const LIMIT2 = Object.fromEntries(SPECIALS.map(t => [t, ONE.includes(t) ? 1 : 2])); // それ以外は各2枚まで
+  const ONE = CARD_DEFS.filter(d => d.limit === 1).map(d => d.key); // 各1枚まで
+  const LIMIT2 = Object.fromEntries(CARD_DEFS.map(d => [d.key, d.limit])); // それ以外は各2枚まで
   const canAdd = (pool, t) => !LIMIT2[t] || pool.filter(c => c.t === t).length < LIMIT2[t];
   function randomPool() {
     const p = [];
@@ -406,7 +439,7 @@ button.card.pickable{cursor:pointer}
     不死: '<svg viewBox="0 0 100 100"><path d="M50 50C35 25 12 30 12 50S35 75 50 50S88 25 88 50S65 75 50 50Z" fill="none" stroke="#7dff9a" stroke-width="4"/></svg>',
     守: '<svg viewBox="0 0 100 100"><path d="M50 10L82 22V50C82 70 66 84 50 90C34 84 18 70 18 50V22Z" fill="#2a3a6e" stroke="#b8c4d6" stroke-width="2.5"/></svg>',
   };
-  (function(){const M={"守": "guard", "交換": "exchange", "反射": "reflect", "3ダメ": "dmg3", "不死": "immortal", "自傷": "selfharm", "反転": "reverse", "共沈": "cosink", "零化": "nullify", "贈与": "gift", "鎖": "chain"},A={"天使": "angel", "人間": "human", "機械": "machine"};for(const k in M)ART[k]='<img class="cimg" src="assets/sp/sp-'+M[k]+'.jpg" alt="">';for(const k in A)ART[k]='<img class="cimg" src="assets/field/'+A[k]+'.jpg" alt="">';})();
+  (function(){const M={"守": "guard", "交換": "exchange", "反射": "reflect", "3ダメ": "dmg3", "不死": "immortal", "自傷": "selfharm", "反転": "reverse", "共沈": "cosink", "零化": "nullify", "贈与": "gift", "鎖": "chain"},A={"天使": "angel", "人間": "human", "機械": "machine"};CARD_DEFS.forEach(d=>{ART[d.key]='<img class="cimg" src="'+d.art+'" alt="">';});for(const k in A)ART[k]='<img class="cimg" src="assets/field/'+A[k]+'.jpg" alt="">';})();
   const EN = { 天使: 'ANGEL', 機械: 'MACHINE', 人間: 'HUMAN', 守: 'GUARD', 交換: 'SWAP', 反射: 'REFLECT', '3ダメ': 'BLOW', 不死: 'UNDYING', 自傷: 'WOUND', 反転: 'INVERT', 共沈: 'SINK', 零化: 'ZERO', 贈与: 'GIFT', 鎖: 'CHAIN' };
 
   function makeCard(c, { hidden, pickable, onPick, selected, size } = {}) {
@@ -537,7 +570,13 @@ button.card.pickable{cursor:pointer}
   let bp = [];
   function renderBuild() {
     const cd = $('bCands'); cd.innerHTML = '';
-    CANDS.forEach(c => cd.appendChild(makeCard(c, { pickable: bp.length < POOL_N && canAdd(bp, c.t), onPick: () => { if (bp.length < POOL_N && canAdd(bp, c.t)) { bp.push({ ...c }); renderBuild(); } } })));
+    CARD_DEFS.forEach(d => {
+      const c = { t: d.key }, n = bp.filter(x => x.t === d.key).length, ok = bp.length < POOL_N && canAdd(bp, c.t);
+      const slot = document.createElement('div'); slot.className = 'bslot' + (n ? ' on' : '') + (ok ? '' : ' full');
+      slot.appendChild(makeCard(c, { pickable: ok, selected: n > 0, onPick: () => { if (bp.length < POOL_N && canAdd(bp, c.t)) { bp.push({ ...c }); renderBuild(); } } }));
+      slot.insertAdjacentHTML('beforeend', '<div class="bct">' + d.name + ' ' + n + '/' + d.limit + '</div><div class="bfl">' + (d.flavor || '') + '</div>');
+      cd.appendChild(slot);
+    });
     const pl = $('bPool'); pl.innerHTML = '';
     bp.forEach((c, i) => pl.appendChild(makeCard(c, { pickable: true, onPick: () => { bp.splice(i, 1); renderBuild(); } })));
     $('bN').textContent = bp.length;
