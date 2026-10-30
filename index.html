@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ミラー（仮）v0.4</title>
+<title>Pain Reflection</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
@@ -127,6 +127,17 @@ button.card.pickable{cursor:pointer}
 .ai .card.q .qm{filter:blur(1.2px)}
 .card.t-鎖{box-shadow:0 0 16px #a0a8b8,0 0 4px #3ff0ff}
 .card.t-不死::after{content:'';position:absolute;inset:-1px;border:2px solid #7dff9a66;transform:translate(4px,-3px);pointer-events:none;border-radius:inherit}
+/* fit: 盤面を常に1画面内へ（dvh基準でカード/属性ボタンを縮める。見た目のみ） */
+.app{height:100vh;height:100dvh;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom));padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}
+:root{--hh:min(var(--hh0,150px),15dvh);--hw:calc(var(--hh)*2/3);--fh:min(var(--fh0,168px),17dvh);--fw:calc(var(--fh)*2/3)}
+@media (min-width:900px){:root{--hh0:168px;--fh0:186px}}
+.half{padding:2px 8px;gap:2px}
+.zone.hz{gap:10px;align-items:center}
+.attrs{gap:6px;flex-direction:row;align-items:center}
+.abtn{padding:2px 6px;font-size:13px}
+.abtn .aimg{width:auto;height:min(54px,5.5dvh);max-width:110px}
+.zone.fz{display:flex;align-items:center;justify-content:center;min-height:calc(var(--fh)*.6)}
+@media (max-width:640px){.attrs{flex-direction:column}.abtn .aimg{height:min(40px,4.5dvh)}}
 </style>
 </head>
 <body>
@@ -156,7 +167,7 @@ button.card.pickable{cursor:pointer}
 </div>
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
-<div class="build" id="build"><img class="klogo" src="assets/key/logo-kekkyo.jpg" alt="欠鏡"><div style="font-size:13px;font-weight:bold;color:#e8f6ff;opacity:.8;letter-spacing:.1em">ミラー（仮）</div><div class="lore1">鏡は半分しか映さない。穴を読んだ側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。なのに相手の盤だけが、静かに欠けている。欠けた輪郭が、見えない手の体温を漏らす。鏡は嘘をつかない。ただ、半分しか映さない。対称は、最初から破れていた。勝つのは強い手ではない。穴を読んだ側だ。一瞬のズレが、すべてを決める。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
+<div class="build" id="build"><img class="klogo" src="assets/key/logo-kekkyo.jpg" alt="欠鏡"><div style="font-size:22px;font-weight:900;color:#e8f6ff;letter-spacing:.12em">Pain Reflection</div><div class="lore1">鏡は半分しか映さない。穴を読んだ側が勝つ。</div><div class="lore">同じルールを、向かい合って見ている。なのに相手の盤だけが、静かに欠けている。欠けた輪郭が、見えない手の体温を漏らす。鏡は嘘をつかない。ただ、半分しか映さない。対称は、最初から破れていた。勝つのは強い手ではない。穴を読んだ側だ。一瞬のズレが、すべてを決める。</div><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（特殊のみ・3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで・ちょうど7枚。天使／人間／機械は毎R使える通常コマンドなので構築不要）</div>
 <div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/7</div><div class="bpool" id="bPool"></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
