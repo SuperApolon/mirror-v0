@@ -73,6 +73,18 @@ button.card.pickable{cursor:pointer}
 #overS{font-size:13px;color:var(--line)}
 .sheet{position:fixed;left:0;right:0;bottom:0;max-height:55dvh;overflow:auto;background:#141829;border-top:1px solid var(--line);border-radius:12px 12px 0 0;padding:12px 16px;z-index:9}
 .rules{position:fixed;inset:0;z-index:11;background:rgba(13,15,26,.92);padding:24px;font-size:13px;line-height:1.7;overflow:auto}
+.build{position:fixed;inset:0;z-index:12;background:var(--bg);display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;overflow:auto}
+.build[hidden]{display:none}
+.build h2{margin:4px 0 0;font-size:20px;font-weight:900;text-shadow:2px 0 var(--ai),-2px 0 var(--me)}
+.build .sub{font-size:12px;color:var(--line)}
+.bgrid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:760px}
+.bgrid .card{--hw:72px;--hh:108px}.bgrid .card .num{font-size:34px}.bgrid .t-守 .num{font-size:22px}
+.bcount{font-weight:900;font-size:15px;color:var(--me)}
+.bpool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:84px;max-width:760px;border:1px solid rgba(63,240,255,.25);border-radius:12px;padding:8px;width:100%}
+.bpool .card{--hw:52px;--hh:78px}.bpool .card .num{font-size:24px}.bpool .t-守 .num{font-size:15px}.bpool .card .hd{font-size:10px}.bpool .card .ft{display:none}
+.brow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.again:disabled{opacity:.35;cursor:default}
+.pc{font-size:10px;color:var(--line);margin-left:8px;opacity:.8}
 .rules div{max-width:520px;margin:40px auto}
 @media (min-width:900px){
  :root{--hw:112px;--hh:168px;--fw:124px;--fh:186px}
@@ -95,7 +107,7 @@ button.card.pickable{cursor:pointer}
 <div class="app">
  <main class="board">
   <section class="half ai">
-   <div class="bar"><span><span class="who">AI</span><span class="life" id="aiLife"></span></span><span class="mobonly">R <b id="round">1</b>/5</span><button type="button" class="tb" id="rulesBtn">ルール</button></div>
+   <div class="bar"><span><span class="who">AI</span><span class="life" id="aiLife"></span><span class="pc">プール <b id="aiPool">10</b></span></span><span class="mobonly">R <b id="round">1</b>/5</span><button type="button" class="tb" id="rulesBtn">ルール</button></div>
    <div class="zone"><div class="hand" id="aiHand"></div></div>
    <div class="zone fz" id="aiField"></div>
   </section>
@@ -104,7 +116,7 @@ button.card.pickable{cursor:pointer}
    <div class="zone fz" id="myField"></div>
    <div class="zone"><div class="hand" id="myHand"></div></div>
    <div class="hint" id="hint"></div>
-   <div class="bar"><span><span class="who">YOU</span><span class="life" id="myLife"></span></span><button type="button" class="tb mobonly" id="logBtn">ログ ▼</button></div>
+   <div class="bar"><span><span class="who">YOU</span><span class="life" id="myLife"></span><span class="pc">プール <b id="myPool">10</b></span></span><button type="button" class="tb mobonly" id="logBtn">ログ ▼</button></div>
   </section>
  </main>
  <aside class="side">
@@ -118,7 +130,11 @@ button.card.pickable{cursor:pointer}
 </div>
 <div class="sheet" id="sheet" hidden><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>ログ</b><button type="button" class="tb" id="sheetClose">閉じる</button></div><div id="sheetLog"></div></div>
 <div class="ov" id="over" hidden><div id="overT"></div><div id="overS"></div><button type="button" class="again" id="restart2">もう一回</button></div>
-<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド・手札3。カード: 天使／機械／人間（各1〜2）＋守。<br>
+<div class="build" id="build"><h2>デッキ構築</h2><div class="sub">候補をタップで追加／プール内をタップで外す（重複可・ちょうど10枚）</div>
+<div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/10</div><div class="bpool" id="bPool"></div>
+<div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム10）</button></div>
+<button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
+<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。試合前にプール10枚を構築し、毎R残プールからランダム3枚が手札。出した札はプールから消失。カード: 天使／機械／人間（各1〜2）＋守。<br>
 三すくみ: 機械＞天使＞人間＞機械。異種は優位側が劣勢側のダメージを無効（勝ち側ダメのみ）。<br>
 同種は相殺: 差分が小さい方へ（同値なら0）。守: そのラウンド受けるダメを0（与ダメなし）。<br>
 欠落: 相手手札の1枚は「？」、残りは公開。勝敗: ライフ0／5R後は残ライフ→残手札。<br>
@@ -132,21 +148,27 @@ button.card.pickable{cursor:pointer}
   const AUTO_NEXT_MS = 1000; // 結果表示→自動で次ラウンド
   let sel = -1;
 
-  function deck() {
-    const d = [];
-    for (const t of ['天使', '機械', '人間']) {
-      for (const v of [1, 1, 2, 2]) d.push({ t, v });
-    }
-    d.push({ t: '守', v: 0 }, { t: '守', v: 0 });
-    for (let i = d.length - 1; i > 0; i--) {
-      const j = (Math.random() * (i + 1)) | 0;
-      [d[i], d[j]] = [d[j], d[i]];
-    }
-    return d;
+  const POOL_N = 10;
+  const CANDS = [];
+  for (const t of ['天使', '機械', '人間']) for (const v of [1, 2]) CANDS.push({ t, v });
+  CANDS.push({ t: '守', v: 0 });
+  function randomPool() {
+    return Array.from({ length: POOL_N }, () => ({ ...CANDS[(Math.random() * CANDS.length) | 0] }));
   }
-
-  function refill(p) {
-    while (p.hand.length < 3 && p.deck.length) p.hand.push(p.deck.pop());
+  // プールから表示用に最大3枚をランダム選出（プールからは消さない）
+  function dealHand(pool) {
+    const c = pool.slice();
+    for (let i = c.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      [c[i], c[j]] = [c[j], c[i]];
+    }
+    return c.slice(0, 3);
+  }
+  function deal() {
+    S.me.hand = dealHand(S.me.pool);
+    S.ai.hand = dealHand(S.ai.pool);
+    S.missIndex = S.ai.hand.length ? (Math.random() * S.ai.hand.length) | 0 : -1;
+    S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
   }
 
   function label(c) {
@@ -194,8 +216,8 @@ button.card.pickable{cursor:pointer}
     if (S.me.life !== S.ai.life) {
       return S.me.life > S.ai.life ? 'あなたの勝ち（残ライフ）' : 'AIの勝ち（残ライフ）';
     }
-    const a = S.me.hand.length + S.me.deck.length;
-    const b = S.ai.hand.length + S.ai.deck.length;
+    const a = S.me.pool.length;
+    const b = S.ai.pool.length;
     if (a === b) return '引き分け';
     return a > b ? 'あなたの勝ち（残手札）' : 'AIの勝ち（残手札）';
   }
@@ -209,21 +231,19 @@ button.card.pickable{cursor:pointer}
 
   function advanceRound() {
     S.round += 1;
-    refill(S.me);
-    refill(S.ai);
-    S.missIndex = S.ai.hand.length ? (Math.random() * S.ai.hand.length) | 0 : -1;
-    S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
+    deal();
+    if (!S.me.hand.length || !S.ai.hand.length) { S.missed = null; finish('\nプール切れ'); return; }
     S.status = 'ラウンド ' + S.round + ' — 手札から1枚選んでください';
   }
 
-  function newGame() {
+  function newGame(myPool) {
     busy = false;
     sel = -1;
     S = {
       round: 1,
       over: false,
-      me: { life: 5, deck: deck(), hand: [] },
-      ai: { life: 5, deck: deck(), hand: [] },
+      me: { life: 5, pool: myPool.map(c => ({ ...c })), hand: [] },
+      ai: { life: 5, pool: randomPool(), hand: [] },
       last: null,
       res: null,
       hist: [],
@@ -232,10 +252,8 @@ button.card.pickable{cursor:pointer}
       log: '',
       status: 'ラウンド 1 — 手札から1枚選んでください',
     };
-    refill(S.me);
-    refill(S.ai);
-    S.missIndex = S.ai.hand.length ? (Math.random() * S.ai.hand.length) | 0 : -1;
-    S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
+    deal();
+    $('build').hidden = true;
     render();
   }
 
@@ -255,6 +273,9 @@ button.card.pickable{cursor:pointer}
       const ac = S.ai.hand.splice(aiIndex, 1)[0];
       if (S.missIndex === aiIndex) S.missed = ac;
       else if (S.missIndex > aiIndex) S.missIndex -= 1;
+      // 出した札はプールから消失（参照一致で削除）
+      S.me.pool.splice(S.me.pool.indexOf(pc), 1);
+      S.ai.pool.splice(S.ai.pool.indexOf(ac), 1);
 
       const [dmgMe, dmgAi] = resolve(pc, ac);
       S.me.life -= dmgMe;
@@ -341,6 +362,8 @@ button.card.pickable{cursor:pointer}
     $('round2').textContent = shownR;
     $('bars').innerHTML = [1,2,3,4,5].map(i => '<i class="' + (i < shownR || (S.over && i <= shownR) ? 'done' : i === shownR ? 'cur' : '') + '"></i>').join('');
     $('status').textContent = S.status;
+    $('myPool').textContent = S.me.pool.length;
+    $('aiPool').textContent = S.ai.pool.length;
 
     const logHtml = S.hist.map(h => {
       const k = resText([h.dmgMe, h.dmgAi]);
@@ -399,12 +422,32 @@ button.card.pickable{cursor:pointer}
     } else ov.hidden = true;
   }
 
-  for (const id of ['restart', 'restart2']) $(id).addEventListener('click', newGame);
+  // ---- デッキ構築 ----
+  let bp = [];
+  function renderBuild() {
+    const cd = $('bCands'); cd.innerHTML = '';
+    CANDS.forEach(c => cd.appendChild(makeCard(c, { pickable: bp.length < POOL_N, onPick: () => { if (bp.length < POOL_N) { bp.push({ ...c }); renderBuild(); } } })));
+    const pl = $('bPool'); pl.innerHTML = '';
+    bp.forEach((c, i) => pl.appendChild(makeCard(c, { pickable: true, onPick: () => { bp.splice(i, 1); renderBuild(); } })));
+    $('bN').textContent = bp.length;
+    $('bStart').disabled = bp.length !== POOL_N;
+  }
+  function openBuild() {
+    busy = false;
+    if (S) S.over = false;
+    $('over').hidden = true;
+    $('build').hidden = false;
+    renderBuild();
+  }
+  $('bReset').addEventListener('click', () => { bp = []; renderBuild(); });
+  $('bRand').addEventListener('click', () => { bp = randomPool(); renderBuild(); });
+  $('bStart').addEventListener('click', () => { if (bp.length === POOL_N) newGame(bp); });
+  for (const id of ['restart', 'restart2']) $(id).addEventListener('click', openBuild);
   $('logBtn').addEventListener('click', () => { $('sheet').hidden = !$('sheet').hidden; });
   $('sheetClose').addEventListener('click', () => { $('sheet').hidden = true; });
   $('rulesBtn').addEventListener('click', () => { $('rules').hidden = !$('rules').hidden; });
   $('rules').addEventListener('click', () => { $('rules').hidden = true; });
-  newGame();
+  openBuild();
 })();
 </script>
 </body>
