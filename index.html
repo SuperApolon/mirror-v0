@@ -133,7 +133,7 @@ button.card.pickable{cursor:pointer}
    <div class="zone fz" id="myField"></div>
    <div class="zone hz"><div class="hand" id="myHand"></div><div class="attrs" id="attrBtns"></div></div>
    <div class="hint" id="hint"></div>
-   <div class="bar"><span><span class="who">YOU</span><span class="life" id="myLife"></span><span class="pc">プール <b id="myPool">7</b></span></span><button type="button" class="tb mobonly" id="logBtn">ログ ▼</button></div>
+   <div class="bar"><span><span class="who">YOU</span><span class="life" id="myLife"></span><span class="pc">プール <b id="myPool">7</b></span></span><button type="button" class="tb" id="redrawBtn" title="手札の特殊を全部山札に戻し3枚引き直す（試合中1回）">全カード交換</button><button type="button" class="tb mobonly" id="logBtn">ログ ▼</button></div>
   </section>
  </main>
  <aside class="side">
@@ -151,7 +151,7 @@ button.card.pickable{cursor:pointer}
 <div class="bgrid" id="bCands"></div><div class="bcount">プール <span id="bN">0</span>/7</div><div class="bpool" id="bPool"></div>
 <div class="brow"><button type="button" class="tb" id="bReset">リセット</button><button type="button" class="tb" id="bRand">おまかせ（ランダム7）</button><a class="tb" href="cards.html" style="text-decoration:none">カード効果一覧</a></div>
 <button type="button" class="again" id="bStart" disabled>対戦開始</button></div>
-<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。<br>
+<div class="rules" id="rules" hidden><div><b>ルール</b>（タップで閉じる）<br>対AI。ライフ5・最大5ラウンド。<br>「全カード交換」: 手札の特殊を全部山札に戻し（消失しない）3枚引き直す。あなた・AIとも試合中1回、手札選択前のみ。特殊カード「交換」とは別。<br>
 毎R: <b>押したら即確定</b>。属性ボタン（天使／人間／機械）＝その属性で確定（特殊なし）。特殊をタップ＝その特殊を場に出して確定（属性なし。相手が属性を出していれば属性ダメ1が直撃し、自傷・3ダメ等と合算）。場は1枚。属性は通常コマンドで毎R使え、消失しない。<br>
 特殊: 試合前に特殊だけでプール7枚を構築（3ダメ／交換／零化／不死／共沈／鎖は各1枚、他は各2枚まで）。開始時にプールからランダム3枚を手札に引く。手札は持ち越し、場で消失した特殊1枚ぶんだけ残り山札から1枚補充（引いた札は山札から除去・二重に出ない）。使った特殊は消失（封印で無効でも消費）。<br>
 三すくみ: 機械＞天使＞人間＞機械。勝った側が相手に1ダメ。同種はあいこ。<br>
@@ -197,6 +197,20 @@ button.card.pickable{cursor:pointer}
   // 場で消失した特殊1枚ぶんだけ山札から補充（山札から除去）。山札切れなら補充なし
   function refill(side, used) {
     if (used && side.deck && side.deck.length) side.hand.push(side.deck.splice((Math.random() * side.deck.length) | 0, 1)[0]);
+  }
+  // 全カード交換: 手札の特殊を全部山札へ戻し（消失しない）、山札から改めて3枚引く。各サイド試合中1回
+  function redrawAll(side) {
+    side.deck = (side.deck || []).concat(side.hand);
+    const c = side.deck;
+    for (let i = c.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [c[i], c[j]] = [c[j], c[i]]; }
+    side.hand = c.splice(0, Math.min(3, c.length));
+    side.redrawn = true;
+  }
+  function myRedraw() {
+    if (!S || S.over || busy || S.me.redrawn) return;
+    redrawAll(S.me); sel = -1;
+    S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': あなたが全カード交換';
+    render();
   }
   function label(c) { return c ? c.t : 'なし'; }
 
@@ -290,6 +304,7 @@ button.card.pickable{cursor:pointer}
     S.status = 'ラウンド ' + S.round + PROMPT;
   }
   function newGame(myPool) {
+    setTimeout(() => { const rb = $('redrawBtn'); if (rb && !rb.dataset.b) { rb.dataset.b = 1; rb.addEventListener('click', myRedraw); } });
     busy = false; sel = -1;
     S = {
       round: 1, over: false,
@@ -313,6 +328,12 @@ button.card.pickable{cursor:pointer}
     busy = true;
     try {
       const msp = sel >= 0 && sel < S.me.hand.length ? S.me.hand[sel] : null;
+      if (!S.ai.redrawn && S.ai.hand.length && (S.ai.hand.length < 2 || Math.random() < 0.25)) {
+        redrawAll(S.ai);
+        S.missIndex = S.ai.hand.length ? (Math.random() * S.ai.hand.length) | 0 : -1;
+        S.missed = S.missIndex >= 0 ? S.ai.hand[S.missIndex] : null;
+        S.log = (S.log ? S.log + '\n' : '') + 'R' + S.round + ': AIが全カード交換';
+      }
       const ap = aiPick();
       const o = sim({ round: S.round, me: S.me, ai: S.ai }, { attr, sp: msp }, ap);
       // 使った特殊は消失（封印で無効でも消費）
@@ -477,6 +498,7 @@ button.card.pickable{cursor:pointer}
       b.addEventListener('click', () => play(t));
       ab.appendChild(b);
     }
+    { const rb = $('redrawBtn'); rb.disabled = !canPick || S.me.redrawn || !S.me.hand.length; rb.textContent = S.me.redrawn ? '全カード交換（済）' : '全カード交換'; }
     $('hint').textContent = S.over ? '' : busy ? '結果表示中…' : '属性ボタン＝その属性で確定／特殊タップ＝出して確定（属性なし・相手属性1ダメ直撃）';
 
     const ov = $('over');
